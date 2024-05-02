@@ -1,5 +1,6 @@
 package com.api.documentApp.config.DTO.user;
 
+import com.api.documentApp.config.enums.Role;
 import lombok.*;
 
 @Data
@@ -12,5 +13,6 @@ public class UserResponseDTO {
     private String patronymic;
     private String email;
     private String post;
+    private Role role;
     private String isActive;
 }

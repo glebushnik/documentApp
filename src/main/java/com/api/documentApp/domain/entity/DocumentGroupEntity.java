@@ -1,4 +1,4 @@
-package com.api.documentApp.config.entity;
+package com.api.documentApp.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

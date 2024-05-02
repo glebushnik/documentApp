@@ -1,4 +1,4 @@
-package com.api.documentApp.config.enums;
+package com.api.documentApp.domain.enums;
 
 public enum DocStatus {
     APPROVED,

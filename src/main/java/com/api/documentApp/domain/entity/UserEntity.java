@@ -1,6 +1,6 @@
-package com.api.documentApp.config.entity;
+package com.api.documentApp.domain.entity;
 
-import com.api.documentApp.config.enums.Role;
+import com.api.documentApp.domain.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

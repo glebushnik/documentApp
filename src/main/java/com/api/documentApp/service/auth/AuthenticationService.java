@@ -1,12 +1,12 @@
 package com.api.documentApp.service.auth;
 
-import com.api.documentApp.config.enums.Role;
+import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
-import com.api.documentApp.config.entity.UserEntity;
-import com.api.documentApp.config.DTO.auth.AuthenticationRequest;
-import com.api.documentApp.config.DTO.auth.RegisterRequest;
-import com.api.documentApp.config.DTO.auth.AuthenticationResponse;
+import com.api.documentApp.domain.entity.UserEntity;
+import com.api.documentApp.domain.DTO.auth.AuthenticationRequest;
+import com.api.documentApp.domain.DTO.auth.RegisterRequest;
+import com.api.documentApp.domain.DTO.auth.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

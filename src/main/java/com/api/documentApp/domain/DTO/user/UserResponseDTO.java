@@ -1,6 +1,6 @@
-package com.api.documentApp.config.DTO.user;
+package com.api.documentApp.domain.DTO.user;
 
-import com.api.documentApp.config.enums.Role;
+import com.api.documentApp.domain.enums.Role;
 import lombok.*;
 
 @Data

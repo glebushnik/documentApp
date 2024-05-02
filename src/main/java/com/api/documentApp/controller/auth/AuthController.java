@@ -1,8 +1,8 @@
 package com.api.documentApp.controller.auth;
 
-import com.api.documentApp.config.DTO.auth.AuthenticationRequest;
-import com.api.documentApp.config.DTO.auth.RegisterRequest;
-import com.api.documentApp.config.DTO.auth.AuthenticationResponse;
+import com.api.documentApp.domain.DTO.auth.AuthenticationRequest;
+import com.api.documentApp.domain.DTO.auth.RegisterRequest;
+import com.api.documentApp.domain.DTO.auth.AuthenticationResponse;
 import com.api.documentApp.service.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 package com.api.documentApp.service.user.impl;
 
-import com.api.documentApp.config.entity.UserEntity;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
+import com.api.documentApp.domain.mapper.user.UserResponseMapper;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +13,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
+    private final UserResponseMapper userResponseMapper;
     @Override
-    public List<UserEntity> getAllUsers() {
-        return userRepo.findAll();
+    public List<UserResponseDTO> getAllUsers() {
+        return userResponseMapper.toDto(userRepo.findAll());
     }
 }

@@ -1,6 +1,6 @@
-package com.api.documentApp.config.entity;
+package com.api.documentApp.domain.entity;
 
-import com.api.documentApp.config.enums.TaskStatus;
+import com.api.documentApp.domain.enums.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

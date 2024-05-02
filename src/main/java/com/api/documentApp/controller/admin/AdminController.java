@@ -1,6 +1,6 @@
-package com.api.documentApp.controller.user;
+package com.api.documentApp.controller.admin;
 
-import com.api.documentApp.config.entity.UserEntity;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
-public class UserController {
+public class AdminController {
     private final UserService userService;
 
-    @GetMapping("/admin/users")
+    @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
         try {
-            List<UserEntity> users = userService.getAllUsers();
+            List<UserResponseDTO> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

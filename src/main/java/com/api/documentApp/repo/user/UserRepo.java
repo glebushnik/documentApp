@@ -1,6 +1,6 @@
 package com.api.documentApp.repo.user;
 
-import com.api.documentApp.config.entity.UserEntity;
+import com.api.documentApp.domain.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

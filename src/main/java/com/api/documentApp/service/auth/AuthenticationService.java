@@ -4,9 +4,9 @@ import com.api.documentApp.config.enums.Role;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.config.entity.UserEntity;
-import com.api.documentApp.config.request.auth.AuthenticationRequest;
-import com.api.documentApp.config.request.auth.RegisterRequest;
-import com.api.documentApp.config.response.auth.AuthenticationResponse;
+import com.api.documentApp.config.DTO.auth.AuthenticationRequest;
+import com.api.documentApp.config.DTO.auth.RegisterRequest;
+import com.api.documentApp.config.DTO.auth.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +27,10 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .department(request.getDepartment())
+                .patronymic(request.getPatronymic())
+                .post(request.getPost())
+                .isActive(true)
                 .build();
         userRepo.save(user);
         var jwtToken = jwtService.generateToken(user);

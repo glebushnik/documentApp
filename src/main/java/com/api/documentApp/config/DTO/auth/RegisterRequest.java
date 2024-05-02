@@ -1,4 +1,4 @@
-package com.api.documentApp.config.request.auth;
+package com.api.documentApp.config.DTO.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class RegisterRequest {
+    private String firstName;
+    private String lastName;
+    private String patronymic;
+    private String department;
+    private String post;
     private String email;
     private String password;
 }

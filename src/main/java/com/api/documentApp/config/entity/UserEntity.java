@@ -30,6 +30,14 @@ public class UserEntity implements UserDetails {
 
     private String password;
 
+    private String patronymic;
+
+    private String post;
+
+    private String department;
+
+    private boolean isActive;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

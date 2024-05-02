@@ -35,8 +35,8 @@ public class DocumentEntity {
 
     @OneToMany( mappedBy = "document",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.REMOVE,
-            orphanRemoval = true)
+            cascade = CascadeType.DETACH
+    )
     @JsonIgnore
     private List<DocumentChangeEntity> documentChanges;
 

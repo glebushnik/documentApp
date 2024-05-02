@@ -42,8 +42,8 @@ public class UserGroupEntity {
 
     @OneToMany( mappedBy = "userGroup",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.REMOVE,
-            orphanRemoval = true)
+            cascade = CascadeType.DETACH
+    )
     @JsonIgnore
     private List<UserEntity> users;
 }

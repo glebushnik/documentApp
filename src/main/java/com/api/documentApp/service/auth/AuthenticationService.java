@@ -26,7 +26,7 @@ public class AuthenticationService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.ADMIN)
                 .department(request.getDepartment())
                 .patronymic(request.getPatronymic())
                 .post(request.getPost())

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,5 +25,17 @@ public class RefreshTokenService {
                 .user(userRepo.findByEmail(username).get())
                 .build()
         );
+    }
+
+    public Optional<RefreshToken> findByToken(String token) {
+        return refreshTokenRepo.findRefreshTokenByToken(token);
+    }
+
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiration().compareTo(Instant.now())<0) {
+            refreshTokenRepo.delete(token);
+            throw new RuntimeException(token.getToken() + " Refresh token expired");
+        }
+        return token;
     }
 }

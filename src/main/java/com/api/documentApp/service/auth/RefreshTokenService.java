@@ -1,6 +1,7 @@
 package com.api.documentApp.service.auth;
 
 import com.api.documentApp.domain.entity.RefreshToken;
+import com.api.documentApp.exception.refresh.RefreshTokenNotFoundByToken;
 import com.api.documentApp.exception.user.UserNotFoundByEmailException;
 import com.api.documentApp.repo.token.RefreshTokenRepo;
 import com.api.documentApp.repo.user.UserRepo;
@@ -27,15 +28,15 @@ public class RefreshTokenService {
         );
     }
 
+    public RefreshToken updateRefreshToken(String token) throws RefreshTokenNotFoundByToken {
+        var refreshToken = refreshTokenRepo.findRefreshTokenByToken(token).orElseThrow(()
+                -> new RefreshTokenNotFoundByToken(String.format("RefreshToken с token : %s не найден.", token)));
+        refreshTokenRepo.delete(refreshToken);
+
+        return createRefreshToken(refreshToken.getUser().getEmail());
+    }
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepo.findRefreshTokenByToken(token);
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.getExpiration().compareTo(Instant.now())<0) {
-            refreshTokenRepo.delete(token);
-            throw new RuntimeException(token.getToken() + " Refresh token expired");
-        }
-        return token;
-    }
 }

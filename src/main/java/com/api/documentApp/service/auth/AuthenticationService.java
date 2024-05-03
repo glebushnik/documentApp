@@ -33,13 +33,13 @@ public class AuthenticationService {
                 .isActive(true)
                 .build();
         userRepo.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user.getEmail());
         return  AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
-    public String authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -48,7 +48,9 @@ public class AuthenticationService {
         );
 
         var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return  jwtToken;
+        var jwtToken = jwtService.generateToken(user.getEmail());
+        return  AuthenticationResponse.builder().token(jwtToken).build();
     }
+
+
 }

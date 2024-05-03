@@ -1,4 +1,4 @@
-package config.mapper;
+package com.api.documentApp.config.mapper;
 
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
 import org.mapstruct.factory.Mappers;

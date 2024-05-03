@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface UserService {
     public List<UserResponseDTO> getAllUsers();
+    public UserResponseDTO getUserById(Long userId) throws UserNotFoundByIdException;
+    public UserResponseDTO updateUserById(Long userId) throws UserNotFoundByIdException;
     public UserGroupResponseDTO getUserGroup(Long userId) throws UserNotFoundByIdException;
 }

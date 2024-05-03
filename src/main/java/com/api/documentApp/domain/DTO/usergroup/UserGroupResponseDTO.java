@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserGroupResponseDTO {
+    private Long id;
     private String name;
     private List<UserResponseDTO> members;
 }

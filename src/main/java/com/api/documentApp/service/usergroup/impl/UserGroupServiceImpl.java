@@ -76,6 +76,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         List<UserGroupResponseDTO> userGroupResponseDTOS = userGroups.stream()
                 .map(userGroup -> UserGroupResponseDTO.builder()
                         .name(userGroup.getName())
+                        .id(userGroup.getId())
                         .members(userGroup.getUsers().stream()
                                 .map(userResponseMapper::toDto)
                                 .collect(Collectors.toList()))

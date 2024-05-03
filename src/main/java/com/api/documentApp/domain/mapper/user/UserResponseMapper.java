@@ -4,6 +4,7 @@ import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.mapper.EntityResponseMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ public interface UserResponseMapper extends EntityResponseMapper<UserResponseDTO
     UserEntity toEntity(UserResponseDTO dto);
 
     @Override
+    @Mapping(target = "id", source = "entity.id")
+    @Mapping(target = "isActive", source = "entity.active")
     UserResponseDTO toDto(UserEntity entity);
 
     @Override

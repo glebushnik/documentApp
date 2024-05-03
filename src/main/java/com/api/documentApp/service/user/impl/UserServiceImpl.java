@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +26,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDTO getUserById(Long userId) throws UserNotFoundByIdException {
+        return userResponseMapper.toDto(userRepo.findById(userId).orElseThrow(()
+                ->new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден",userId))));
+    }
+
+
+
+    @Override
     public UserGroupResponseDTO getUserGroup(Long userId) throws UserNotFoundByIdException {
         UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователя с таким id : %d не существует", userId)));
         UserGroupEntity userGroup = user.getUserGroup();
@@ -34,5 +41,10 @@ public class UserServiceImpl implements UserService {
                 .name(userGroup.getName())
                 .members(userResponseMapper.toDto(userGroup.getUsers()))
                 .build();
+    }
+
+    @Override
+    public UserResponseDTO updateUserById(Long userId) throws UserNotFoundByIdException {
+        return null;
     }
 }

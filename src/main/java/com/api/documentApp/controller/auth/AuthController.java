@@ -4,6 +4,7 @@ import com.api.documentApp.domain.DTO.auth.AuthenticationRequest;
 import com.api.documentApp.domain.DTO.auth.RegisterRequest;
 import com.api.documentApp.domain.DTO.auth.AuthenticationResponse;
 import com.api.documentApp.service.auth.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request
     ) {
         System.out.println(request);
         return ResponseEntity.ok(authenticationService.register(request));

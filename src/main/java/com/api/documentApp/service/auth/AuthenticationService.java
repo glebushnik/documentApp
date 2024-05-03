@@ -39,7 +39,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public String authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -49,8 +49,6 @@ public class AuthenticationService {
 
         var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        return  AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return  jwtToken;
     }
 }

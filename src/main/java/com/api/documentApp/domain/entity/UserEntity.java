@@ -48,6 +48,9 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne(mappedBy = "user")
+    private RefreshToken refreshToken;
+
     @ManyToOne
     @JoinColumn(name = "user_group")
     private UserGroupEntity userGroup;

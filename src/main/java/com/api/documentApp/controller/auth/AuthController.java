@@ -58,8 +58,6 @@ public class AuthController {
                             .accessToken(jwtService.generateToken(userName))
                                     .build()
             );
-        } catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

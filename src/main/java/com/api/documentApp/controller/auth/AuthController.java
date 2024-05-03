@@ -24,14 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final RefreshTokenService refreshTokenService;
-    private final AuthRequestMapper authRequestMapper;
     private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        try {
+            String accessToken = authenticationService.register(request).getToken();
+            String refreshToken = refreshTokenService.createRefreshToken(request.getEmail()).getToken();
+            System.out.println(accessToken);
+            System.out.println(refreshToken);
+            return ResponseEntity.ok(
+                    JWTResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")

@@ -19,6 +19,9 @@ public class RefreshTokenService {
     private final UserRepo userRepo;
 
     public RefreshToken createRefreshToken(String username) {
+        if(userRepo.findByEmail(username).get().getRefreshToken()!=null) {
+            return userRepo.findByEmail(username).get().getRefreshToken();
+        }
         return refreshTokenRepo.save(
                 RefreshToken.builder()
                 .token(UUID.randomUUID().toString())

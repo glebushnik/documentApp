@@ -1,6 +1,7 @@
 package com.api.documentApp.service.auth;
 
 import com.api.documentApp.domain.enums.Role;
+import com.api.documentApp.repo.token.RefreshTokenRepo;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.domain.entity.UserEntity;
@@ -20,6 +21,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
     public AuthenticationResponse register(RegisterRequest request) {
         var user = UserEntity.builder()
                 .firstName(request.getFirstName())
@@ -48,6 +50,7 @@ public class AuthenticationService {
         );
 
         var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
+
         var jwtToken = jwtService.generateToken(user.getEmail());
         return  AuthenticationResponse.builder().token(jwtToken).build();
     }

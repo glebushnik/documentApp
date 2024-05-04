@@ -2,12 +2,16 @@ package com.api.documentApp.controller.admin;
 
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
+import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
+import com.api.documentApp.exception.user.UserNotFoundByEmailException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
+import com.api.documentApp.exception.usergroup.UserGroupContainsNoSuchUsersException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.service.user.UserService;
 import com.api.documentApp.service.usergroup.UserGroupService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -88,7 +92,7 @@ public class AdminController {
     public ResponseEntity<?> getAllUserGroups() {
         try {
             List<UserGroupResponseDTO> userGroupResponseDTOS = userGroupService.getAllUserGroups();
-            return ResponseEntity.ok(userGroupResponseDTOS);
+            return ResponseEntity.ok().body(userGroupResponseDTOS);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -113,6 +117,44 @@ public class AdminController {
         try {
             return ResponseEntity.ok().body(userService.updateUserById(userId, requestDTO));
         } catch (UserNotFoundByIdException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/usergroups/{userGroupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> addUserToUserGroupById(
+            @PathVariable Long userGroupId,
+            @RequestBody @Valid UserEmailRequestDTO requestDTO
+    ) {
+        try {
+            return ResponseEntity.ok().body(
+              userGroupService.addUserToGroup(userGroupId, requestDTO)
+            );
+        } catch (UserNotFoundByEmailException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (UserGroupNotFoundByIdException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/usergroups/{userGroupId}/kick")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> kickUserFromGroupById(
+            @PathVariable Long userGroupId,
+            @RequestBody @Valid UserEmailRequestDTO requestDTO
+    ) {
+        try {
+            return ResponseEntity.ok().body(userGroupService.deleteUserFromGroup(userGroupId, requestDTO));
+        } catch (UserGroupContainsNoSuchUsersException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (UserNotFoundByEmailException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (UserGroupNotFoundByIdException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

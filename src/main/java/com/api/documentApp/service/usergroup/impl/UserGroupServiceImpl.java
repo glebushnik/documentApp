@@ -1,11 +1,14 @@
 package com.api.documentApp.service.usergroup.impl;
 
+import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
 import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
+import com.api.documentApp.exception.user.UserNotFoundByEmailException;
+import com.api.documentApp.exception.usergroup.UserGroupContainsNoSuchUsersException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.repo.usergroup.UserGroupRepo;
@@ -67,6 +70,8 @@ public class UserGroupServiceImpl implements UserGroupService {
     public void deleteUserGroupById(Long userGroupId) throws UserGroupNotFoundByIdException {
         var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
                 -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
+        var users = userGroup.getUsers();
+        users.forEach(user -> user.setUserGroup(null));
         userGroupRepo.deleteById(userGroupId);
     }
 
@@ -82,8 +87,40 @@ public class UserGroupServiceImpl implements UserGroupService {
                                 .collect(Collectors.toList()))
                         .build())
                 .collect(Collectors.toList());
-
         return userGroupResponseDTOS;
+    }
 
+    @Override
+    public UserGroupResponseDTO addUserToGroup(Long userGroupId, UserEmailRequestDTO userEmailRequestDTO) throws UserNotFoundByEmailException, UserGroupNotFoundByIdException {
+        var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
+        -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
+        var userEmail = userEmailRequestDTO.getUserEmail();
+        var user = userRepo.findByEmail(userEmail).orElseThrow(()
+                -> new UserNotFoundByEmailException(String.format("Пользователь с email : %s не найден", userEmail)));
+        var members = userGroup.getUsers();
+        members.add(user);
+        userGroup.setUsers(members);
+        user.setUserGroup(userGroup);
+        userRepo.save(user);
+        System.out.println(userGroup);
+        return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
+    }
+
+    @Override
+    public UserGroupResponseDTO deleteUserFromGroup(Long userGroupId, UserEmailRequestDTO userEmailRequestDTO) throws UserNotFoundByEmailException, UserGroupNotFoundByIdException, UserGroupContainsNoSuchUsersException {
+        var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
+                -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
+        var userEmail = userEmailRequestDTO.getUserEmail();
+        var user = userRepo.findByEmail(userEmail).orElseThrow(()
+                -> new UserNotFoundByEmailException(String.format("Пользователь с email : %s не найден", userEmail)));
+        var members = userGroup.getUsers();
+        if(!members.contains(user)){
+            throw new UserGroupContainsNoSuchUsersException(String.format("Пользователь с email : %s не в группе %s", userEmail, userGroup.getName()));
+        }
+        members.remove(user);
+        userGroup.setUsers(members);
+        user.setUserGroup(null);
+        userRepo.save(user);
+        return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }
 }

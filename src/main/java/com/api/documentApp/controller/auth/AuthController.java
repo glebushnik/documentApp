@@ -31,7 +31,6 @@ public class AuthController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        try {
             String accessToken = authenticationService.register(request).getToken();
             String refreshToken = refreshTokenService.createRefreshToken(request.getEmail()).getToken();
             System.out.println(accessToken);
@@ -42,11 +41,6 @@ public class AuthController {
                     .refreshToken(refreshToken)
                     .build()
             );
-        } catch (UserAltreadyExistsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 
     @PostMapping("/login")
@@ -64,8 +58,6 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-
     }
 
     @PostMapping("/refreshtoken")

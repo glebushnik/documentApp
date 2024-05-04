@@ -22,10 +22,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public AuthenticationResponse register(RegisterRequest request) throws UserAltreadyExistsException {
-        if(userRepo.findByEmail(request.getEmail())!=null) {
-            throw  new RuntimeException(String.format("Пользователь с email : %s уже существует", request.getEmail()));
-        }
+    public AuthenticationResponse register(RegisterRequest request){
         var user = UserEntity.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())

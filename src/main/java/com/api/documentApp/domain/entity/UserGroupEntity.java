@@ -40,10 +40,7 @@ public class UserGroupEntity {
     @JsonIgnore
     private Set<DocumentGroupEntity> documentGroups = new HashSet<>();
 
-    @OneToMany( mappedBy = "userGroup",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.DETACH
-    )
+    @OneToMany(mappedBy = "userGroup")
     @JsonIgnore
     private List<UserEntity> users;
 }

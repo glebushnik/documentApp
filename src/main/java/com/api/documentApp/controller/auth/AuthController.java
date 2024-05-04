@@ -5,7 +5,6 @@ import com.api.documentApp.domain.entity.RefreshToken;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.mapper.auth.AuthRequestMapper;
 import com.api.documentApp.exception.refresh.RefreshTokenNotFoundByToken;
-import com.api.documentApp.exception.user.UserAltreadyExistsException;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.auth.AuthenticationService;
 import com.api.documentApp.service.auth.RefreshTokenService;
@@ -31,6 +30,7 @@ public class AuthController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request
     ) {
+        try {
             String accessToken = authenticationService.register(request).getToken();
             String refreshToken = refreshTokenService.createRefreshToken(request.getEmail()).getToken();
             System.out.println(accessToken);
@@ -41,23 +41,22 @@ public class AuthController {
                     .refreshToken(refreshToken)
                     .build()
             );
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticate(
-            @Valid @RequestBody AuthenticationRequest request
-    ) {
-        try {
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
-            return ResponseEntity.ok(
-                    JWTResponse.builder()
-                            .accessToken(authenticationService.authenticate(request).getToken())
-                            .refreshToken(refreshToken.getToken())
-                            .build()
-            );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<JWTResponse> authenticate(
+            @Valid @RequestBody AuthenticationRequest request
+    ) {
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
+        return ResponseEntity.ok(
+                JWTResponse.builder()
+                .accessToken(authenticationService.authenticate(request).getToken())
+                .refreshToken(refreshToken.getToken())
+                .build()
+        );
     }
 
     @PostMapping("/refreshtoken")

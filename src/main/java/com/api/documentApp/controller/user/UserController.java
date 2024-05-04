@@ -1,7 +1,13 @@
 package com.api.documentApp.controller.user;
 
+import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.service.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +22,14 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
+    @Operation(
+            summary = "Retrieve User by Id",
+            description = "Get a User object by specifying its id. The response is User object with id, name, email, password, createdAt, updatedAt and role.",
+            tags = { "users", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserEntity.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(userService.getUserById(userId));

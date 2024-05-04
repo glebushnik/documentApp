@@ -8,6 +8,11 @@ import com.api.documentApp.exception.refresh.RefreshTokenNotFoundByToken;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.auth.AuthenticationService;
 import com.api.documentApp.service.auth.RefreshTokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,19 +32,25 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Register User",
+            description = "Register a new user. The request body should be a RegisterRequest object with name, email and password. The response is a JWTResponse object with access token and refresh token.",
+            tags = { "users", "post" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = JWTResponse.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request
     ) {
         try {
             String accessToken = authenticationService.register(request).getToken();
             String refreshToken = refreshTokenService.createRefreshToken(request.getEmail()).getToken();
-            System.out.println(accessToken);
-            System.out.println(refreshToken);
-            return ResponseEntity.ok(
+            return ResponseEntity.ok().body(
                     JWTResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build()
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,19 +58,35 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JWTResponse> authenticate(
+    @Operation(
+            summary = "Authenticate User",
+            description = "Authenticate a user. The request body should be an AuthenticationRequest object with email and password. The response is a JWTResponse object with access token and refresh token.",
+            tags = { "users", "post" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = JWTResponse.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    public ResponseEntity<?> authenticate(
             @Valid @RequestBody AuthenticationRequest request
     ) {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 JWTResponse.builder()
-                .accessToken(authenticationService.authenticate(request).getToken())
-                .refreshToken(refreshToken.getToken())
-                .build()
+                        .accessToken(authenticationService.authenticate(request).getToken())
+                        .refreshToken(refreshToken.getToken())
+                        .build()
         );
     }
 
     @PostMapping("/refreshtoken")
+    @Operation(
+            summary = "Refresh Token",
+            description = "Refresh a user's token. The request body should be a RefreshTokenRequest object with refresh token. The response is a JWTResponse object with new access token and refresh token.",
+            tags = { "users", "post" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = JWTResponse.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {
             RefreshToken refreshToken = refreshTokenService.findByToken(request.getToken()).get();
@@ -68,7 +95,7 @@ public class AuthController {
                     JWTResponse.builder()
                             .refreshToken(refreshTokenService.updateRefreshToken(refreshToken.getToken()).getToken())
                             .accessToken(jwtService.generateToken(userName))
-                                    .build()
+                            .build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

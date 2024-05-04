@@ -34,9 +34,18 @@ public class RefreshTokenService {
     public RefreshToken updateRefreshToken(String token) throws RefreshTokenNotFoundByToken {
         var refreshToken = refreshTokenRepo.findRefreshTokenByToken(token).orElseThrow(()
                 -> new RefreshTokenNotFoundByToken(String.format("RefreshToken с token : %s не найден.", token)));
+        var user = refreshToken.getUser();
+        var username = user.getEmail();
+        user.setRefreshToken(null);
         refreshTokenRepo.delete(refreshToken);
 
-        return createRefreshToken(refreshToken.getUser().getEmail());
+        return refreshTokenRepo.save(
+                RefreshToken.builder()
+                        .token(UUID.randomUUID().toString())
+                        .expiration(Instant.now().plusSeconds(1296000))
+                        .user(userRepo.findByEmail(username).get())
+                        .build()
+        );
     }
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepo.findRefreshTokenByToken(token);

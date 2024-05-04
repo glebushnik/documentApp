@@ -1,5 +1,6 @@
 package com.api.documentApp.controller.admin;
 
+import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
@@ -89,6 +90,31 @@ public class AdminController {
             List<UserGroupResponseDTO> userGroupResponseDTOS = userGroupService.getAllUserGroups();
             return ResponseEntity.ok(userGroupResponseDTOS);
         }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/users/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> deleteUserById(@PathVariable Long userId) {
+        try {
+            userService.deleteUserById(userId);
+            return ResponseEntity.ok().body(String.format("Пользователь с id : %d удален", userId));
+        } catch (UserNotFoundByIdException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/users/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> updateUserById(@PathVariable Long userId, @RequestBody UserRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok().body(userService.updateUserById(userId, requestDTO));
+        } catch (UserNotFoundByIdException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

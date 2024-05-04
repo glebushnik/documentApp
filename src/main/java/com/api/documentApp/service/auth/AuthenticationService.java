@@ -1,7 +1,8 @@
 package com.api.documentApp.service.auth;
 
 import com.api.documentApp.domain.enums.Role;
-import com.api.documentApp.repo.token.RefreshTokenRepo;
+import com.api.documentApp.exception.user.UserAltreadyExistsException;
+import com.api.documentApp.exception.user.UserNotFoundByEmailException;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.domain.entity.UserEntity;
@@ -21,8 +22,10 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenService refreshTokenService;
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request) throws UserAltreadyExistsException {
+        if(userRepo.findByEmail(request.getEmail())!=null) {
+            throw  new RuntimeException(String.format("Пользователь с email : %s уже существует", request.getEmail()));
+        }
         var user = UserEntity.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -41,7 +44,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws UserNotFoundByEmailException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -49,7 +52,9 @@ public class AuthenticationService {
                 )
         );
 
-        var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
+        var user = userRepo.findByEmail(request.getEmail()).orElseThrow(
+                ()->new UserNotFoundByEmailException(String.format("Пользователь с email : %s не найден.", request.getEmail())
+        ));
 
         var jwtToken = jwtService.generateToken(user.getEmail());
         return  AuthenticationResponse.builder().token(jwtToken).build();

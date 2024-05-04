@@ -5,6 +5,7 @@ import com.api.documentApp.domain.entity.RefreshToken;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.mapper.auth.AuthRequestMapper;
 import com.api.documentApp.exception.refresh.RefreshTokenNotFoundByToken;
+import com.api.documentApp.exception.user.UserAltreadyExistsException;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.auth.AuthenticationService;
 import com.api.documentApp.service.auth.RefreshTokenService;
@@ -41,22 +42,30 @@ public class AuthController {
                     .refreshToken(refreshToken)
                     .build()
             );
+        } catch (UserAltreadyExistsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JWTResponse> authenticate(
+    public ResponseEntity<?> authenticate(
             @Valid @RequestBody AuthenticationRequest request
     ) {
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
-        return ResponseEntity.ok(
-                JWTResponse.builder()
-                .accessToken(authenticationService.authenticate(request).getToken())
-                .refreshToken(refreshToken.getToken())
-                .build()
-        );
+        try {
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
+            return ResponseEntity.ok(
+                    JWTResponse.builder()
+                            .accessToken(authenticationService.authenticate(request).getToken())
+                            .refreshToken(refreshToken.getToken())
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+
     }
 
     @PostMapping("/refreshtoken")

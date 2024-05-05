@@ -14,7 +14,7 @@ import java.util.List;
 public interface UserGroupService {
     public UserGroupResponseDTO createUserGroup(UserGroupRequestDTO userGroupRequestDTO) throws UsernameNotFoundException;
     public UserGroupResponseDTO getUserGroupById(Long userGroupId) throws UserGroupNotFoundByIdException;
-    public UserGroupResponseDTO updateUserGroupById(Long userGroupId, UserGroupRequestDTO userGroupRequestDTO) throws UserGroupNotFoundByIdException;
+    public UserGroupResponseDTO updateUserGroupNameById(Long userGroupId, UserGroupRequestDTO userGroupRequestDTO) throws UserGroupNotFoundByIdException;
     public void deleteUserGroupById(Long userGroupId) throws UserGroupNotFoundByIdException;
     public List<UserGroupResponseDTO> getAllUserGroups();
     public UserGroupResponseDTO addUserToGroup(Long userGroupId, UserEmailRequestDTO userEmailRequestDTO) throws UserNotFoundByEmailException,

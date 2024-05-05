@@ -4,11 +4,17 @@ spring:
     username: db_admin
     password: wHO0mmBM
     driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          lob:
+            non-contextual-creation: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect

@@ -9,6 +9,7 @@ import com.api.documentApp.exception.user.UserNotFoundByEmailException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupContainsNoSuchUsersException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
+import com.api.documentApp.service.document.DocumentService;
 import com.api.documentApp.service.user.UserService;
 import com.api.documentApp.service.usergroup.UserGroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,7 @@ import java.util.List;
 public class AdminController {
     private final UserService userService;
     private final UserGroupService userGroupService;
+    private final DocumentService documentService;
 
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -238,6 +240,16 @@ public class AdminController {
         } catch (UserGroupNotFoundByIdException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/docs/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getAllDocs() {
+        try {
+            return ResponseEntity.ok().body(documentService.getAllDocs());
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

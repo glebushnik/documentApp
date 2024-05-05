@@ -7,8 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -19,16 +21,18 @@ import java.util.List;
 @Table(name = "documents")
 public class DocumentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String fileType;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
 
     private String fileName;
 
-    private Timestamp createdDate;
+    private String type;
 
-    private byte[] grpData;
+    private Instant createdDate;
+
+    @Lob
+    private byte[] data;
 
     @Enumerated(EnumType.STRING)
     private DocStatus status;
@@ -46,4 +50,5 @@ public class DocumentEntity {
             orphanRemoval = true)
     @JsonIgnore
     private List<TaskEntity> tasks;
+
 }

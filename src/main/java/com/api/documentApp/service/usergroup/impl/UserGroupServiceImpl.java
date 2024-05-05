@@ -60,10 +60,11 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     //todo после добавления documents сделать апдейт
     @Override
-    public UserGroupResponseDTO updateUserGroupById(Long userGroupId, UserGroupRequestDTO userGroupRequestDTO) throws UserGroupNotFoundByIdException {
+    public UserGroupResponseDTO updateUserGroupNameById(Long userGroupId, UserGroupRequestDTO userGroupRequestDTO) throws UserGroupNotFoundByIdException {
         var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
                 -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
-        return null;
+        userGroup.setName(userGroupRequestDTO.getName());
+        return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }
 
     @Override

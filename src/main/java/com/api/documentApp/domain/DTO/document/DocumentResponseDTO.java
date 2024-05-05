@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentResponseDTO {
+    private String id;
     private String name;
     private String url;
     private String type;
+    private String owner;
     private long size;
 }

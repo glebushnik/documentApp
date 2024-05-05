@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.Type;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -19,6 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "documents")
+
+
 public class DocumentEntity {
     @Id
     @GeneratedValue(generator = "uuid")
@@ -39,16 +43,18 @@ public class DocumentEntity {
 
     @OneToMany( mappedBy = "document",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.DETACH
+            cascade = CascadeType.REMOVE
     )
     @JsonIgnore
     private List<DocumentChangeEntity> documentChanges;
 
     @OneToMany( mappedBy = "document",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.REMOVE,
-            orphanRemoval = true)
+            fetch = FetchType.LAZY)
     @JsonIgnore
     private List<TaskEntity> tasks;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
 }

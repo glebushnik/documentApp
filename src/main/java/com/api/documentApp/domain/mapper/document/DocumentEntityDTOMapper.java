@@ -19,8 +19,10 @@ public class DocumentEntityDTOMapper {
                             .path(doc.getId())
                             .toUriString();
                     return DocumentResponseDTO.builder()
+                            .id(doc.getId())
                             .name(doc.getFileName())
                             .type(doc.getType())
+                            .owner(doc.getUser().getEmail())
                             .size(doc.getData().length)
                             .url(fileDownloadUrl)
                             .build();

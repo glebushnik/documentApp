@@ -1,5 +1,6 @@
 package com.api.documentApp.controller.admin;
 
+import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
@@ -217,35 +218,16 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @PutMapping("/usergroups/{userGroupId}/kick")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(
-            summary = "Kick User from User Group by Id",
-            description = "Kick a user from a user group by specifying the user group id and user email. The response is a UserGroupResponseDTO object with id, name and users.",
-            tags = { "admin", "user groups", "put"})
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserGroupResponseDTO.class), mediaType = "application/json") }),
-            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
-            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-    public ResponseEntity<?> kickUserFromGroupById(
-            @PathVariable Long userGroupId,
-            @RequestBody @Valid UserEmailRequestDTO requestDTO
-    ) {
-        try {
-            return ResponseEntity.ok().body(userGroupService.deleteUserFromGroup(userGroupId, requestDTO));
-        } catch (UserGroupContainsNoSuchUsersException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (UserNotFoundByEmailException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (UserGroupNotFoundByIdException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @GetMapping("/docs/all")
     @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Get All Documents",
+            description = "Retrieve all documents.",
+            tags = { "admin", "documents", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> getAllDocs() {
         try {
             return ResponseEntity.ok().body(documentService.getAllDocs());
@@ -253,4 +235,5 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }

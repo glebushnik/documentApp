@@ -69,6 +69,9 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private Set<TaskEntity> tasks = new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<DocumentEntity> docs;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

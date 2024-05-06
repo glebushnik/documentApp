@@ -15,8 +15,10 @@ import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
+import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.document.DocumentRepo;
 import com.api.documentApp.repo.user.UserRepo;
+import com.api.documentApp.repo.usergroup.UserGroupRepo;
 import com.api.documentApp.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
+    private final UserGroupRepo userGroupRepo;
     private final UserResponseMapper userResponseMapper;
     private final UpdateUserMapper updateUserMapper;
     private final DocumentEntityDTOMapper documentEntityDTOMapper;
@@ -58,9 +61,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO updateUserById(Long userId, UserRequestDTO requestDTO) throws UserNotFoundByIdException {
+    public UserResponseDTO updateUserById(Long userId, UserRequestDTO requestDTO) throws UserNotFoundByIdException, UserGroupNotFoundByIdException {
         var user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId)));
         user = updateUserMapper.mapUserEntityWithRequestDTO(user, requestDTO);
+        if(requestDTO.getGroupId()!=null) {
+            var userGroup = userGroupRepo.findById(requestDTO.getGroupId()).orElseThrow(
+                    () -> new UserGroupNotFoundByIdException(
+                            String.format("Группа пользователей с id : %d не найдена", requestDTO.getGroupId())
+                    )
+            );
+            var prevUserGroup = user.getUserGroup() != null ? user.getUserGroup() : null;
+            if (prevUserGroup != null) {
+                var prevUserGroupMembers = prevUserGroup.getUsers();
+                prevUserGroupMembers.remove(user);
+                userGroupRepo.save(prevUserGroup);
+            }
+            user.setUserGroup(userGroup);
+            var newUserGroupMembers = userGroup.getUsers();
+            newUserGroupMembers.add(user);
+            userGroup.setUsers(newUserGroupMembers);
+            userGroupRepo.save(userGroup);
+        }
         return userResponseMapper.toDto(userRepo.save(user));
     }
 

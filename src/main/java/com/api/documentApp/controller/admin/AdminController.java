@@ -176,7 +176,7 @@ public class AdminController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(
             summary = "Update User by Id",
-            description = "Update a user by specifying its id. The request body should be a UserRequestDTO object with name, email, password, createdAt, updatedAt and role. The response is a UserResponseDTO object with id, name, email, password, createdAt, updatedAt and role.",
+            description = "Update a user by specifying its id. The request body should be a UserRequestDTO object with name, email, password, usergroupid and role. The response is a UserResponseDTO object with id, name, email, password, createdAt, updatedAt and role.",
             tags = { "admin", "users", "put"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserResponseDTO.class), mediaType = "application/json") }),

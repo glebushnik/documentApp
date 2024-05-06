@@ -5,8 +5,6 @@ spring:
     url: jdbc:postgresql://213.171.4.235:5432/documentapp_db
     username: db_admin
     password: wHO0mmBM
-
-
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:
@@ -24,12 +22,12 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   mail:
     host: smtp.gmail.com
-    port: 587
     username: document.app.help@gmail.com
     password: evwgtekpttyzqyuy
 
+    port: 587
+    protocol: smtp
     properties:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
+        "mail.transport.protocol": smtp
+        "mail.smtp.auth": true
+        "mail.smtp.starttls.enable": true

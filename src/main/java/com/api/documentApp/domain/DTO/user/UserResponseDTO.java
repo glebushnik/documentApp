@@ -15,6 +15,7 @@ public class UserResponseDTO {
     private String patronymic;
     private String email;
     private String post;
+    private String department;
     private Role role;
     private boolean isActive;
 }

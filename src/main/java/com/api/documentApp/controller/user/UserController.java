@@ -1,5 +1,7 @@
 package com.api.documentApp.controller.user;
 
+import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.security.JwtService;
@@ -32,7 +34,7 @@ public class UserController {
             description = "Get a User object by specifying its id. The response is User object with id, name, email, password, createdAt, updatedAt and role.",
             tags = { "users", "get" })
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserEntity.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
@@ -51,7 +53,7 @@ public class UserController {
             description = "Retrieve documents belonging to a specific user identified by user id.",
             tags = { "users", "get", "documents"})
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = List.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> getUserDocsById(

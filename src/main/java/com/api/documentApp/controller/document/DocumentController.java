@@ -1,6 +1,6 @@
 package com.api.documentApp.controller.document;
 
-import com.api.documentApp.domain.DTO.user.UserDocRequestDTO;
+import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.document.DocumentService;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +30,7 @@ public class DocumentController {
             description = "Upload a document.",
             tags = { "documents", "upload"})
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = String.class), mediaType = "document id") }),
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseMessage.class), mediaType = "document id") }),
             @ApiResponse(responseCode = "417", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     public ResponseEntity<?> uploadDoc(

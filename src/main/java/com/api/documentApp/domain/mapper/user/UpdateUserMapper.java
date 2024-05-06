@@ -13,6 +13,7 @@ public class UpdateUserMapper {
         user.setEmail(requestDTO.getEmail() != null ? requestDTO.getEmail() : user.getEmail());
         user.setPost(requestDTO.getPost() != null ? requestDTO.getPost() : user.getPost());
         user.setRole(requestDTO.getRole() != null ? requestDTO.getRole() : user.getRole());
+        user.setDepartment(requestDTO.getDepartMent() != null ? requestDTO.getDepartMent() : user.getDepartment());
         return user;
     }
 }

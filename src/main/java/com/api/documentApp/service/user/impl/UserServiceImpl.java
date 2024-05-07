@@ -4,29 +4,23 @@ import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
-import com.api.documentApp.domain.entity.DocumentEntity;
-import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
 import com.api.documentApp.domain.mapper.user.UpdateUserMapper;
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
-import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
-import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.document.DocumentRepo;
+import com.api.documentApp.repo.token.RefreshTokenRepo;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.repo.usergroup.UserGroupRepo;
 import com.api.documentApp.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UpdateUserMapper updateUserMapper;
     private final DocumentEntityDTOMapper documentEntityDTOMapper;
     private final DocumentRepo documentRepo;
+    private final RefreshTokenRepo refreshTokenRepo;
     @Override
     public List<UserResponseDTO> getAllUsers() {
         return userResponseMapper.toDto(userRepo.findAll());
@@ -46,6 +41,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO getUserById(Long userId) throws UserNotFoundByIdException {
         return userResponseMapper.toDto(userRepo.findById(userId).orElseThrow(()
                 ->new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден",userId))));
+
     }
 
 
@@ -88,6 +84,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long userId) throws UserNotFoundByIdException {
         var user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId)));
+        var refresh = user.getRefreshToken();
+        refreshTokenRepo.delete(refresh);
+        var userGroup = user.getUserGroup();
+        if(userGroup!=null) {
+            var groupMembers = userGroup.getUsers();
+            groupMembers.remove(user);
+            userGroup.setUsers(groupMembers);
+            userGroupRepo.save(userGroup);
+        }
         userRepo.delete(user);
     }
 

@@ -15,6 +15,7 @@ public interface UserGroupResponseMapper extends EntityResponseMapper<UserGroupR
 
     @Override
     @Mapping(target = "id", source = "entity.id")
+    @Mapping(target = "members", source = "entity.users")
     UserGroupResponseDTO toDto(UserGroupEntity entity);
 
     @Override

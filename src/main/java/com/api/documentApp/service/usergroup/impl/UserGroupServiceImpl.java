@@ -103,7 +103,6 @@ public class UserGroupServiceImpl implements UserGroupService {
         userGroup.setUsers(members);
         user.setUserGroup(userGroup);
         userRepo.save(user);
-        System.out.println(userGroup);
         return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }
 

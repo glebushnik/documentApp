@@ -1,5 +1,6 @@
 package com.api.documentApp.domain.DTO.user;
 
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseNoMembersDTO;
 import com.api.documentApp.domain.enums.Role;
 import lombok.*;
 
@@ -17,5 +18,6 @@ public class UserResponseDTO {
     private String post;
     private String department;
     private Role role;
+    private UserGroupResponseNoMembersDTO groupResponseDTO;
     private boolean isActive;
 }

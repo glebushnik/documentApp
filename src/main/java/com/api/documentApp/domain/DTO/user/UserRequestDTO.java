@@ -16,7 +16,7 @@ public class UserRequestDTO {
     private String patronymic;
     private String email;
     private String post;
-    private String departMent;
+    private String department;
     private Role role;
     private Long groupId;
 }

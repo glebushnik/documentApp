@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class EmailRequestDTO {
     private Long receiverId;
     private String docId;
+    private String header;
     private String body;
 }

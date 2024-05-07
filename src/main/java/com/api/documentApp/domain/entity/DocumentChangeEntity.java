@@ -19,6 +19,8 @@ public class DocumentChangeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String header;
+
     private String message;
 
     private Timestamp changedDate;

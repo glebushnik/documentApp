@@ -17,6 +17,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
@@ -47,7 +49,11 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setFrom("document.app.help@gmail.com");
             mimeMessageHelper.setTo(recevier.getEmail());
             mimeMessageHelper.setSubject(String.format(
-                    "Письмо от %s.", currentUser.getEmail()
+                    "Письмо от %s %s %s (%s). Тема: " + emailRequestDTO.getHeader(),
+                    currentUser.getLastName(),
+                    currentUser.getFirstName(),
+                    currentUser.getPatronymic(),
+                    currentUser.getEmail()
             ));
             mimeMessageHelper.setText(emailRequestDTO.getBody());
             ByteArrayResource resource = new ByteArrayResource(doc.getData());
@@ -56,6 +62,7 @@ public class EmailServiceImpl implements EmailService {
             return EmailResponseDTO.builder()
                     .emailReceiver(recevier.getEmail())
                     .docId(doc.getId())
+                    .sentTime(Instant.now())
                     .build();
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");

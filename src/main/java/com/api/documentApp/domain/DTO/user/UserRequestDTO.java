@@ -18,5 +18,6 @@ public class UserRequestDTO {
     private String post;
     private String department;
     private Role role;
+    private String password;
     private Long groupId;
 }

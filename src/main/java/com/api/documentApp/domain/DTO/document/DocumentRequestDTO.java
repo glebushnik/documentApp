@@ -1,5 +1,6 @@
 package com.api.documentApp.domain.DTO.document;
 
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.enums.DocStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,21 +14,20 @@ import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class DocumentResponseDTO {
+@AllArgsConstructor
+public class DocumentRequestDTO {
     private String id;
-    private String name;
-    private String url;
-    private String type;
-    private String owner;
-    private Instant createdDate;
-    private Instant expirationDate;
-    private String parentDocId;
     @Enumerated(EnumType.STRING)
     private DocStatus status;
-    private List<String> relatedDocs;
-    private List<String> userGroups;
+
+    private List<String> relatedDocIds;
+
+    private String parentDocId;
+
+    private List<String> relatedUserGroupIds;
+
+    private Instant expirationDate;
+
     private String comment;
-    private long size;
 }

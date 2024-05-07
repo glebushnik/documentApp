@@ -1,6 +1,7 @@
 package com.api.documentApp.domain.entity;
 
 import com.api.documentApp.domain.enums.DocStatus;
+import com.api.documentApp.domain.mapper.document.DocumentIdsToStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,9 @@ import org.hibernate.annotations.Type;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -35,11 +38,23 @@ public class DocumentEntity {
 
     private Instant createdDate;
 
+    private Instant expirationDate;
+
+    private String parentDocId;
+
+    @Convert(converter = DocumentIdsToStringConverter.class)
+    private List<String> relatedDocs;
+
     @Lob
     private byte[] data;
 
     @Enumerated(EnumType.STRING)
     private DocStatus status;
+
+    private String comment;
+
+    @Convert(converter = DocumentIdsToStringConverter.class)
+    private List<String> groupIds;
 
     @OneToMany( mappedBy = "document",
             fetch = FetchType.LAZY,

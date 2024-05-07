@@ -26,20 +26,6 @@ public class UserGroupEntity {
 
     private String name;
 
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToMany(cascade = {
-            CascadeType.DETACH,
-            CascadeType.REFRESH,
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    }, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_document_group_mapping",
-            joinColumns = @JoinColumn(name = "user_group_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_group_id")
-    )
-    @JsonIgnore
-    private Set<DocumentGroupEntity> documentGroups = new HashSet<>();
-
     @OneToMany(mappedBy = "userGroup")
     @JsonIgnore
     private List<UserEntity> users;

@@ -1,5 +1,6 @@
 package com.api.documentApp.controller.admin;
 
+import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
@@ -234,6 +235,26 @@ public class AdminController {
         try {
             return ResponseEntity.ok().body(documentService.getAllDocs());
         } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/set-doc-properties")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Set Document Properties",
+            description = "Set properties for a document.",
+            tags = { "admin", "documents", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    public ResponseEntity<?> setDocProperties(@RequestBody DocumentRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok().body(
+                    documentService.setProperties(requestDTO)
+            );
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

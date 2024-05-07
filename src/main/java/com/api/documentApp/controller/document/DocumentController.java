@@ -1,5 +1,6 @@
 package com.api.documentApp.controller.document;
 
+import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.security.JwtService;

@@ -73,6 +73,15 @@ public class UserController {
     }
 
     @GetMapping("/current")
+    @Operation(
+            summary = "Get Current User Info",
+            description = "Retrieve information about the currently logged-in user.",
+            tags = { "users", "get", "info" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> getCurrentUserInfo(HttpServletRequest request) {
         try {
             String authorizationHeader = request.getHeader("Authorization");
@@ -83,4 +92,5 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }

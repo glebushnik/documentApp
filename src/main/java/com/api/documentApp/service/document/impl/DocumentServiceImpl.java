@@ -4,11 +4,14 @@ import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.DTO.user.UserDocRequestDTO;
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentEntity;
+import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.document.UpdateDocMapper;
+import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
@@ -25,16 +28,18 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepo documentRepo;
-    private final DocumentEntityDTOMapper documentEntityDTOMapper;
     private final UserRepo userRepo;
     private final UpdateDocMapper updateDocMapper;
     private final DocumentResponseMapper documentResponseMapper;
+    private final UserGroupRepo userGroupRepo;
+    private final UserGroupResponseMapper userGroupResponseMapper;
 
     @Override
     public DocumentResponseMessage storeDoc(
@@ -107,16 +112,29 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException {
-        var doc = documentRepo.findById(requestDTO.getId()).get();
-        documentRepo.save(updateDocMapper.updateDocument(requestDTO,doc));
-        DocumentResponseDTO documentResponseDTO = documentResponseMapper.toDto(doc);
-        String fileDownloadUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/api/docs/")
-                .path(documentResponseDTO.getId())
-                .toUriString();
-        documentResponseDTO.setUrl(fileDownloadUrl);
-        return documentResponseDTO;
+    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO, String userNameFromAccess) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException, NotEnoughRightsException {
+        var user = userRepo.findByEmail(userNameFromAccess).get();
+        var doc = documentRepo.findById(requestDTO.getId()).orElseThrow(
+                ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден", requestDTO.getId()))
+        );
+        if(user.getRole() == Role.ADMIN || doc.getUser() == user) {
+            if (documentRepo.findAllById(requestDTO.getRelatedDocIds()).contains(null)) {
+                throw new DocumentNotFoundByIdException("Документов с такими id не найдено.");
+            }
+            if (userGroupRepo.findAllById(requestDTO.getRelatedUserGroupIds().stream().map(Long::parseLong).collect(Collectors.toList())).contains(null)) {
+                throw new UserGroupNotFoundByIdException("Групп с такими id не найдено.");
+            }
+            documentRepo.save(updateDocMapper.updateDocument(requestDTO, doc));
+            DocumentResponseDTO documentResponseDTO = documentResponseMapper.toDto(doc);
+            String fileDownloadUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/api/docs/")
+                    .path(documentResponseDTO.getId())
+                    .toUriString();
+            documentResponseDTO.setUrl(fileDownloadUrl);
+            return documentResponseDTO;
+        } else {
+            throw new NotEnoughRightsException("Недостаточно прав.");
+        }
     }
 }

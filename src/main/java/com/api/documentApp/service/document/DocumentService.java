@@ -4,6 +4,8 @@ import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.DTO.user.UserDocRequestDTO;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -16,7 +18,10 @@ import java.util.List;
 
 public interface DocumentService {
     public DocumentResponseMessage storeDoc(MultipartFile file, String userNameFromAccess) throws IOException;
-    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException;
+    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO, String userNameFromAccess)
+            throws DocumentNotFoundByIdException,
+            UserGroupNotFoundByIdException,
+            NotEnoughRightsException;
     public DocumentEntity getDocById(String fileName) throws DocumentNotFoundByIdException;
 
     public List<DocumentResponseDTO> getAllDocs();
@@ -24,4 +29,5 @@ public interface DocumentService {
     public void deleteDocById(String docId, String userName)
             throws DocumentNotFoundByIdException,
             NotEnoughRightsException;
+
 }

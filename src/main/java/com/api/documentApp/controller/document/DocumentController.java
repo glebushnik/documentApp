@@ -1,7 +1,9 @@
 package com.api.documentApp.controller.document;
 
 import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
+import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.document.DocumentService;
@@ -16,8 +18,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,7 +81,7 @@ public class DocumentController {
     @Operation(
             summary = "Delete Document by Id",
             description = "Delete a document by its id.",
-            tags = { "documents", "delete"})
+            tags = { "documents", "delete", "get"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
@@ -98,5 +103,29 @@ public class DocumentController {
         }
     }
 
+    @PutMapping("/set-doc-properties")
+    @Operation(
+            summary = "Set Document Properties",
+            description = "Set properties for a document.",
+            tags = { "docs", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    public ResponseEntity<?> setDocProperties(
+            @RequestBody DocumentRequestDTO requestDTO,
+            HttpServletRequest request
+    ) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok().body(
+                    documentService.setProperties(requestDTO, usernameFromAccess)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 

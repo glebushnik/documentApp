@@ -239,24 +239,6 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/set-doc-properties")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(
-            summary = "Set Document Properties",
-            description = "Set properties for a document.",
-            tags = { "admin", "documents", "put" })
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
-            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
-            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-    public ResponseEntity<?> setDocProperties(@RequestBody DocumentRequestDTO requestDTO) {
-        try {
-            return ResponseEntity.ok().body(
-                    documentService.setProperties(requestDTO)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+
 
 }

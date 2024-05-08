@@ -17,7 +17,7 @@ public class UpdateDocMapper {
         document.setParentDocId(requestDTO.getParentDocId()!=null ? requestDTO.getParentDocId() : document.getParentDocId());
         document.setGroupIds(!requestDTO.getRelatedUserGroupIds().isEmpty() ? requestDTO.getRelatedUserGroupIds() : document.getGroupIds());
         document.setExpirationDate(requestDTO.getExpirationDate() != null ? requestDTO.getExpirationDate() : document.getExpirationDate());
-
+        document.setComment(requestDTO.getComment()!=null ? requestDTO.getComment() : document.getComment());
         return document;
     }
 }

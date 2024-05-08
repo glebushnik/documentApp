@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface UserService {
     public List<UserResponseDTO> getAllUsers();
+    public UserResponseDTO getCurrentUser(String userNameFromAccess);
     public UserResponseDTO getUserById(Long userId) throws UserNotFoundByIdException;
     public UserResponseDTO updateUserById(Long userId, UserRequestDTO requestDTO) throws UserNotFoundByIdException, UserGroupNotFoundByIdException;
     public void deleteUserById(Long userId) throws UserNotFoundByIdException;

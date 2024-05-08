@@ -7,6 +7,7 @@ import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
+import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.user.UpdateUserMapper;
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -29,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserGroupRepo userGroupRepo;
     private final UserResponseMapper userResponseMapper;
     private final UpdateUserMapper updateUserMapper;
-    private final DocumentEntityDTOMapper documentEntityDTOMapper;
+    private final DocumentResponseMapper documentResponseMapper;
     private final DocumentRepo documentRepo;
     private final RefreshTokenRepo refreshTokenRepo;
     @Override
@@ -110,10 +111,14 @@ public class UserServiceImpl implements UserService {
                 || isGroupMember
         ) {
 
-            return documentEntityDTOMapper.toDto(documentRepo.findAllByUser(reqUser));
+            return documentResponseMapper.toDto(documentRepo.findAllByUser(reqUser));
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");
         }
+    }
 
+    @Override
+    public UserResponseDTO getCurrentUser(String userNameFromAccess) {
+        return userResponseMapper.toDto(userRepo.findByEmail(userNameFromAccess).get());
     }
 }

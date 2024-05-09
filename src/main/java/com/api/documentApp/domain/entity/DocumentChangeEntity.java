@@ -25,6 +25,7 @@ public class DocumentChangeEntity {
 
     private Timestamp changedDate;
 
+    private String createdBy;
 
     @ManyToOne
     @JoinColumn(name = "document")

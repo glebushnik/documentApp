@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,9 +31,9 @@ public class TaskEntity {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    private Timestamp createdDate;
+    private Instant createdDate;
 
-    private Timestamp deadline;
+    private Instant deadline;
 
     @ManyToMany(mappedBy = "tasks", fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JsonIgnore

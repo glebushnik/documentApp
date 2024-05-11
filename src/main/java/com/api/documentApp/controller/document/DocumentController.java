@@ -105,7 +105,7 @@ public class DocumentController {
     @Operation(
             summary = "Set Document Properties",
             description = "Set properties for a document.",
-            tags = { "docs", "put" })
+            tags = { "documents", "put" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
@@ -126,7 +126,18 @@ public class DocumentController {
         }
     }
 
+
     @GetMapping("/by-group")
+    @Operation(
+            summary = "Get Documents by Group",
+            description = "Retrieve documents belonging to the group of the authenticated user.",
+            tags = { "documents", "get" }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of documents", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = { @Content() }),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = { @Content() })
+    })
     public ResponseEntity<?> getDocsByGroup(HttpServletRequest request) {
         try {
             String authorizationHeader = request.getHeader("Authorization");
@@ -137,5 +148,6 @@ public class DocumentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
 

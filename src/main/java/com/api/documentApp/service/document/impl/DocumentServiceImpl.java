@@ -14,6 +14,7 @@ import com.api.documentApp.repo.document.DocumentRepo;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.repo.usergroup.UserGroupRepo;
 import com.api.documentApp.service.document.DocumentService;
+import com.ibm.icu.text.Transliterator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,10 +40,14 @@ public class DocumentServiceImpl implements DocumentService {
             String userNameFromAccess
     ) throws IOException{
         var user = userRepo.findByEmail(userNameFromAccess).get();
-
+        boolean containsCyrillic = file.getOriginalFilename().codePoints()
+                .mapToObj(Character.UnicodeScript::of)
+                .anyMatch(Character.UnicodeScript.CYRILLIC::equals);
+        Transliterator toLatin = Transliterator.getInstance("Cyrillic-Latin");
+        var fileName = toLatin.transliterate(file.getOriginalFilename());
         var doc = documentRepo.save(
                 DocumentEntity.builder()
-                        .fileName(file.getOriginalFilename())
+                        .fileName(containsCyrillic ? fileName : file.getOriginalFilename())
                         .type(file.getContentType())
                         .createdDate(Instant.now())
                         .user(user)

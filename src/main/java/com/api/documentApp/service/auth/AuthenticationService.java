@@ -1,12 +1,11 @@
 package com.api.documentApp.service.auth;
 
+import com.api.documentApp.domain.DTO.auth.*;
 import com.api.documentApp.domain.enums.Role;
+import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.domain.entity.UserEntity;
-import com.api.documentApp.domain.DTO.auth.AuthenticationRequest;
-import com.api.documentApp.domain.DTO.auth.RegisterRequest;
-import com.api.documentApp.domain.DTO.auth.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,5 +53,17 @@ public class AuthenticationService {
         return  AuthenticationResponse.builder().token(jwtToken).build();
     }
 
+    public ChangePasswordResponse changePassword(ChangePassRequest request) throws UserNotFoundByIdException {
+        var user = userRepo.findById(request.getUserId()).orElseThrow(
+                ()->new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", request.getUserId()))
+        );
 
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+        userRepo.save(user);
+        return ChangePasswordResponse.builder()
+                .newPassword(request.getPassword())
+                .build();
+    }
 }

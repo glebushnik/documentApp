@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -97,6 +98,24 @@ public class AuthController {
                             .role(refreshToken.getUser().getRole())
                             .build()
             );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/change-password")
+    @Operation(
+            summary = "Change Password",
+            description = "Change the password of a user by their ID. The request body should be a ChangePassRequest object with user ID and new password. Only administrators are allowed to perform this action.",
+            tags = { "users", "post" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> changePasswordById(@RequestBody ChangePassRequest request) {
+        try {
+            return ResponseEntity.ok().body(authenticationService.changePassword(request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

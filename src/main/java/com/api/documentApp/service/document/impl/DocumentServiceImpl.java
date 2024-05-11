@@ -139,7 +139,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess) {
         var reqUser = userRepo.findByEmail(userNameFromAccess).get();
-        if(reqUser.getRole() == Role.ADMIN) {
+        if(!(reqUser.getRole() == Role.ADMIN)я) {
             var userGroup = reqUser.getUserGroup();
             List<DocumentEntity> groupDocs = userGroup.getUsers()
                     .stream()

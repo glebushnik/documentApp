@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,19 @@ public class UserGroupEntity {
 
     private String name;
 
-    @OneToMany(mappedBy = "userGroup")
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "userGroups")
     @JsonIgnore
-    private List<UserEntity> users;
+    private List<UserEntity> users = new ArrayList<>();
+
+    @PreRemove
+    private void removeGroupsFromUsers() {
+        for (UserEntity u : users) {
+            u.getUserGroups().remove(this);
+        }
+    }
 }

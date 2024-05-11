@@ -4,6 +4,8 @@ import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseNoMembersDTO;
 import com.api.documentApp.domain.enums.Role;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,6 +20,6 @@ public class UserResponseDTO {
     private String post;
     private String department;
     private Role role;
-    private UserGroupResponseNoMembersDTO groupResponseDTO;
+    private List<UserGroupResponseNoMembersDTO> groupResponseDTOs;
     private boolean isActive;
 }

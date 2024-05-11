@@ -16,7 +16,7 @@ public interface UserService {
     public UserResponseDTO getUserById(Long userId) throws UserNotFoundByIdException;
     public UserResponseDTO updateUserById(Long userId, UserRequestDTO requestDTO) throws UserNotFoundByIdException, UserGroupNotFoundByIdException;
     public void deleteUserById(Long userId) throws UserNotFoundByIdException;
-    public UserGroupResponseDTO getUserGroup(Long userId) throws UserNotFoundByIdException;
+    public List<UserGroupResponseDTO> getUserGroups(Long userId) throws UserNotFoundByIdException;
     public List<DocumentResponseDTO> getUserDocuments(Long userId,String userNameFromAccess)
             throws UserNotFoundByIdException, NotEnoughRightsException;
 }

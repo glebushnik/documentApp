@@ -10,10 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Data
@@ -51,9 +48,16 @@ public class UserEntity implements UserDetails {
     @OneToOne(mappedBy = "user")
     private RefreshToken refreshToken;
 
-    @ManyToOne
-    @JoinColumn(name = "user_group")
-    private UserGroupEntity userGroup;
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "user_usergroups",
+            joinColumns = { @JoinColumn(name = "user_id") },
+            inverseJoinColumns = { @JoinColumn(name = "group_id") })
+    private List<UserGroupEntity> userGroups = new ArrayList<>();
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToMany(cascade = {
@@ -102,4 +106,16 @@ public class UserEntity implements UserDetails {
         return true;
     }
 
+    public void addUserGroup(UserGroupEntity group) {
+        this.userGroups.add(group);
+        group.getUsers().add(this);
+    }
+
+    public void removeUserGroup(long userGroupId) {
+        UserGroupEntity userGroup = this.userGroups.stream().filter(group -> group.getId() == userGroupId).findFirst().orElse(null);
+        if (userGroup != null) {
+            this.userGroups.remove(userGroup);
+            userGroup.getUsers().remove(this);
+        }
+    }
 }

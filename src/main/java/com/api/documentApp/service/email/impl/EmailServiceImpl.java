@@ -2,6 +2,8 @@ package com.api.documentApp.service.email.impl;
 
 import com.api.documentApp.domain.DTO.email.EmailRequestDTO;
 import com.api.documentApp.domain.DTO.email.EmailResponseDTO;
+import com.api.documentApp.domain.entity.DocumentEntity;
+import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
@@ -20,6 +22,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +42,12 @@ public class EmailServiceImpl implements EmailService {
         );
 
         var currentUser = userRepo.findByEmail(userNameFromAccess).get();
-        var groupDocs = documentResponseMapper.toEntity(documentService.getGroupDocs(userNameFromAccess));
+        Set<DocumentEntity> groupDocs = currentUser.getUserGroups().stream()
+                .flatMap(group -> group.getUsers().stream())
+                .map(UserEntity::getDocs)
+                .flatMap(docs -> docs.stream())
+                .collect(Collectors.toSet());
+
         if(
                 currentUser.getRole()== Role.ADMIN
                 || groupDocs.contains(doc)

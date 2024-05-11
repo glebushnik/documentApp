@@ -10,6 +10,7 @@ import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.user.UpdateUserMapper;
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
+import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final DocumentResponseMapper documentResponseMapper;
     private final DocumentRepo documentRepo;
     private final RefreshTokenRepo refreshTokenRepo;
+    private final UserGroupResponseMapper userGroupResponseMapper;
     @Override
     public List<UserResponseDTO> getAllUsers() {
         return userResponseMapper.toDto(userRepo.findAll());
@@ -48,37 +50,20 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserGroupResponseDTO getUserGroup(Long userId) throws UserNotFoundByIdException {
+    public List<UserGroupResponseDTO> getUserGroups(Long userId) throws UserNotFoundByIdException {
         var user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId)));
-        UserGroupEntity userGroup = user.getUserGroup();
-        return UserGroupResponseDTO.builder()
-                .name(userGroup.getName())
-                .members(userResponseMapper.toDto(userGroup.getUsers()))
-                .build();
+        var userGroups = user.getUserGroups();
+        return userGroupResponseMapper.toDto(userGroups);
     }
 
     @Override
     public UserResponseDTO updateUserById(Long userId, UserRequestDTO requestDTO) throws UserNotFoundByIdException, UserGroupNotFoundByIdException {
-        var user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId)));
-        user = updateUserMapper.mapUserEntityWithRequestDTO(user, requestDTO);
-        if(requestDTO.getGroupId()!=null) {
-            var userGroup = userGroupRepo.findById(requestDTO.getGroupId()).orElseThrow(
-                    () -> new UserGroupNotFoundByIdException(
-                            String.format("Группа пользователей с id : %d не найдена", requestDTO.getGroupId())
-                    )
-            );
-            var prevUserGroup = user.getUserGroup() != null ? user.getUserGroup() : null;
-            if (prevUserGroup != null) {
-                var prevUserGroupMembers = prevUserGroup.getUsers();
-                prevUserGroupMembers.remove(user);
-                userGroupRepo.save(prevUserGroup);
-            }
-            user.setUserGroup(userGroup);
-            var newUserGroupMembers = userGroup.getUsers();
-            newUserGroupMembers.add(user);
-            userGroup.setUsers(newUserGroupMembers);
-            userGroupRepo.save(userGroup);
-        }
+        var user = userRepo.findById(userId).orElseThrow(
+                () -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId))
+        );
+
+        updateUserMapper.mapUserEntityWithRequestDTO(user, requestDTO);
+        userGroupRepo.saveAll(user.getUserGroups());
         return userResponseMapper.toDto(userRepo.save(user));
     }
 
@@ -87,13 +72,13 @@ public class UserServiceImpl implements UserService {
         var user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден", userId)));
         var refresh = user.getRefreshToken();
         refreshTokenRepo.delete(refresh);
-        var userGroup = user.getUserGroup();
-        if(userGroup!=null) {
-            var groupMembers = userGroup.getUsers();
-            groupMembers.remove(user);
-            userGroup.setUsers(groupMembers);
-            userGroupRepo.save(userGroup);
-        }
+        var userGroups = user.getUserGroups();
+        userGroups.forEach(userGroup -> {
+            var users = userGroup.getUsers();
+            users.remove(user);
+            userGroup.setUsers(users);
+        });
+        userGroupRepo.saveAll(userGroups);
         userRepo.delete(user);
     }
 
@@ -103,14 +88,9 @@ public class UserServiceImpl implements UserService {
                 () -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
         );
         var user = userRepo.findByEmail(userNameFromAccess).get();
-
-        var isGroupMember = reqUser.getUserGroup()!=null && reqUser.getUserGroup().getUsers().contains(user);
-        if (
-                user == reqUser
-                || user.getRole() == Role.ADMIN
-                || isGroupMember
-        ) {
-
+        var userGroups = user.getUserGroups();
+        userGroups.retainAll(reqUser.getUserGroups());
+        if(!userGroups.isEmpty()){
             return documentResponseMapper.toDto(documentRepo.findAllByUser(reqUser));
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");

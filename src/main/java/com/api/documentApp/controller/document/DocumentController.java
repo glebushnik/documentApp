@@ -1,5 +1,6 @@
 package com.api.documentApp.controller.document;
 
+import com.api.documentApp.domain.DTO.document.DocumentGroupRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
@@ -79,7 +80,7 @@ public class DocumentController {
     @Operation(
             summary = "Delete Document by Id",
             description = "Delete a document by its id.",
-            tags = { "documents", "delete", "get"})
+            tags = { "documents", "delete"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
@@ -138,12 +139,12 @@ public class DocumentController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = { @Content() }),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = { @Content() })
     })
-    public ResponseEntity<?> getDocsByGroup(HttpServletRequest request) {
+    public ResponseEntity<?> getDocsByGroup(HttpServletRequest request, DocumentGroupRequestDTO requestDTO) {
         try {
             String authorizationHeader = request.getHeader("Authorization");
             String token = authorizationHeader.substring(7);
             String usernameFromAccess = jwtService.extractUserName(token);
-            return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess));
+            return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess, requestDTO.getGroupId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -88,7 +88,7 @@ public class AdminController {
             @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
     public ResponseEntity<?> getUserGroup(@PathVariable Long userId) {
         try {
-            return ResponseEntity.ok(userService.getUserGroup(userId));
+            return ResponseEntity.ok(userService.getUserGroups(userId));
         } catch (UserNotFoundByIdException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -212,6 +212,33 @@ public class AdminController {
         try {
             return ResponseEntity.ok().body(
                     userGroupService.addUserToGroup(userGroupId, requestDTO)
+            );
+        } catch (UserNotFoundByEmailException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (UserGroupNotFoundByIdException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/usergroups/remove/{userGroupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Remove user from User Group by user Id",
+            description = "Remove user from User Group the user group by specifying the user group id. The request body should be a UserEmailRequestDTO object with email. The response is a UserGroupResponseDTO object with id, name and users.",
+            tags = { "admin", "user groups", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserGroupResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    public ResponseEntity<?> removeUserFromGroupById(
+            @PathVariable Long userGroupId,
+            @RequestBody @Valid UserEmailRequestDTO requestDTO
+    ) {
+        try {
+            return ResponseEntity.ok().body(
+                    userGroupService.deleteUserFromGroup(userGroupId, requestDTO)
             );
         } catch (UserNotFoundByEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

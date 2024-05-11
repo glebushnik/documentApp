@@ -39,7 +39,7 @@ public class UserGroupServiceImpl implements UserGroupService {
                 .users(users)
                 .build();
         userGroupRepo.save(userGroup);
-        users.forEach(userEntity -> userEntity.setUserGroup(userGroup));
+        users.forEach(userEntity -> userEntity.getUserGroups().add(userGroup));
         userRepo.saveAll(users);
         return UserGroupResponseDTO.builder()
                 .name(userGroup.getName())
@@ -72,7 +72,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
                 -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
         var users = userGroup.getUsers();
-        users.forEach(user -> user.setUserGroup(null));
+        users.forEach(user -> user.removeUserGroup(userGroup.getId()));
         userGroupRepo.deleteById(userGroupId);
     }
 
@@ -101,7 +101,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         var members = userGroup.getUsers();
         members.add(user);
         userGroup.setUsers(members);
-        user.setUserGroup(userGroup);
+        user.addUserGroup(userGroup);
         userRepo.save(user);
         return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }
@@ -119,7 +119,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         }
         members.remove(user);
         userGroup.setUsers(members);
-        user.setUserGroup(null);
+        user.removeUserGroup(userGroupId);
         userRepo.save(user);
         return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }

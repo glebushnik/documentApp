@@ -24,5 +24,8 @@ public interface DocumentResponseMapper extends EntityResponseMapper<DocumentRes
     List<DocumentEntity> toEntity(List<DocumentResponseDTO> dtoList);
 
     @Override
+    @Mapping(target = "name", source = "entity.fileName")
+    @Mapping(target = "owner", source = "entity.user.email")
+    @Mapping(target = "userGroups", source = "entity.groupIds")
     List<DocumentResponseDTO> toDto(List<DocumentEntity> entityList);
 }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,5 +21,5 @@ public class UserRequestDTO {
     private String department;
     private Role role;
     private String password;
-    private Long groupId;
+    private List<Long> groupIds;
 }

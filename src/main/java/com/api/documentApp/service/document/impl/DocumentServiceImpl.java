@@ -137,18 +137,24 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess) {
+    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess, Long groupId)
+            throws UserGroupNotFoundByIdException,
+            NotEnoughRightsException
+    {
         var reqUser = userRepo.findByEmail(userNameFromAccess).get();
-        if(!(reqUser.getRole() == Role.ADMIN)) {
-            var userGroup = reqUser.getUserGroup();
+        var userGroup = userGroupRepo.findById(groupId).orElseThrow(
+                ()->new UserGroupNotFoundByIdException(String.format("Группа пользователей с id : %d не найдена", groupId))
+        );
+        if(reqUser.getUserGroups().contains(userGroup)){
             List<DocumentEntity> groupDocs = userGroup.getUsers()
                     .stream()
                     .flatMap(user -> user.getDocs().stream())
                     .collect(Collectors.toList());
             return documentResponseMapper.toDto(groupDocs);
-        } else {
+        } else if(reqUser.getRole() == Role.ADMIN) {
             return documentResponseMapper.toDto(documentRepo.findAll());
+        } else {
+            throw new NotEnoughRightsException("Недостаточно прав.");
         }
     }
-
 }

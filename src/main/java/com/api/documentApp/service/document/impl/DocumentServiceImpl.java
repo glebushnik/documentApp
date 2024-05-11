@@ -139,13 +139,16 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess) {
         var reqUser = userRepo.findByEmail(userNameFromAccess).get();
-
-        var userGroup = reqUser.getUserGroup();
-        List<DocumentEntity> groupDocs = userGroup.getUsers()
-                .stream()
-                .flatMap(user -> user.getDocs().stream())
-                .collect(Collectors.toList());
-        return documentResponseMapper.toDto(groupDocs);
+        if(reqUser.getRole() == Role.ADMIN) {
+            var userGroup = reqUser.getUserGroup();
+            List<DocumentEntity> groupDocs = userGroup.getUsers()
+                    .stream()
+                    .flatMap(user -> user.getDocs().stream())
+                    .collect(Collectors.toList());
+            return documentResponseMapper.toDto(groupDocs);
+        } else {
+            return documentResponseMapper.toDto(documentRepo.findAll());
+        }
     }
 
 }

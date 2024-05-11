@@ -76,7 +76,7 @@ public class UserController {
     @Operation(
             summary = "Get Current User Info",
             description = "Retrieve information about the currently logged-in user.",
-            tags = { "users", "get", "info" })
+            tags = { "users", "get", "auth" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = UserResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),

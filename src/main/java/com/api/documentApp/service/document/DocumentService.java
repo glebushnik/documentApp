@@ -30,4 +30,6 @@ public interface DocumentService {
             throws DocumentNotFoundByIdException,
             NotEnoughRightsException;
 
+    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess);
+
 }

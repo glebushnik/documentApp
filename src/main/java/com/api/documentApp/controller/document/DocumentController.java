@@ -38,6 +38,7 @@ public class DocumentController {
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = DocumentResponseMessage.class), mediaType = "document id") }),
             @ApiResponse(responseCode = "417", content = { @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+
     public ResponseEntity<?> uploadDoc(
             @RequestParam("file") MultipartFile file,
             HttpServletRequest request
@@ -120,6 +121,18 @@ public class DocumentController {
             return ResponseEntity.ok().body(
                     documentService.setProperties(requestDTO, usernameFromAccess)
             );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/by-group")
+    public ResponseEntity<?> getDocsByGroup(HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

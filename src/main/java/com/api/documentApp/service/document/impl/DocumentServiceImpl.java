@@ -3,18 +3,12 @@ package com.api.documentApp.service.document.impl;
 import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
-import com.api.documentApp.domain.DTO.user.UserDocRequestDTO;
-import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentEntity;
-import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
-import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.document.UpdateDocMapper;
-import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
-import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.document.DocumentRepo;
 import com.api.documentApp.repo.user.UserRepo;
@@ -28,7 +22,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +32,6 @@ public class DocumentServiceImpl implements DocumentService {
     private final UpdateDocMapper updateDocMapper;
     private final DocumentResponseMapper documentResponseMapper;
     private final UserGroupRepo userGroupRepo;
-    private final UserGroupResponseMapper userGroupResponseMapper;
 
     @Override
     public DocumentResponseMessage storeDoc(
@@ -47,6 +39,7 @@ public class DocumentServiceImpl implements DocumentService {
             String userNameFromAccess
     ) throws IOException{
         var user = userRepo.findByEmail(userNameFromAccess).get();
+
         var doc = documentRepo.save(
                 DocumentEntity.builder()
                         .fileName(file.getOriginalFilename())
@@ -137,4 +130,17 @@ public class DocumentServiceImpl implements DocumentService {
             throw new NotEnoughRightsException("Недостаточно прав.");
         }
     }
+
+    @Override
+    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess) {
+        var reqUser = userRepo.findByEmail(userNameFromAccess).get();
+
+        var userGroup = reqUser.getUserGroup();
+        List<DocumentEntity> groupDocs = userGroup.getUsers()
+                .stream()
+                .flatMap(user -> user.getDocs().stream())
+                .collect(Collectors.toList());
+        return documentResponseMapper.toDto(groupDocs);
+    }
+
 }

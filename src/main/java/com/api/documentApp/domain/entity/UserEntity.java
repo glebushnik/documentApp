@@ -61,17 +61,15 @@ public class UserEntity implements UserDetails {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToMany(cascade = {
-            CascadeType.DETACH,
-            CascadeType.REFRESH,
             CascadeType.PERSIST,
             CascadeType.MERGE
     }, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_task_mapping",
+    @JoinTable(name = "user_tasks",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "task_id")
     )
     @JsonIgnore
-    private Set<TaskEntity> tasks = new HashSet<>();
+    private List<TaskEntity> tasks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<DocumentEntity> docs;
@@ -116,6 +114,19 @@ public class UserEntity implements UserDetails {
         if (userGroup != null) {
             this.userGroups.remove(userGroup);
             userGroup.getUsers().remove(this);
+        }
+    }
+
+    public void addTask(TaskEntity task) {
+        this.tasks.add(task);
+        task.getUsers().add(this);
+    }
+
+    public void removeTask(long taskId) {
+        TaskEntity task = this.tasks.stream().filter(t -> t.getId() == taskId).findFirst().orElse(null);
+        if (task != null) {
+            this.userGroups.remove(task);
+            task.getUsers().remove(this);
         }
     }
 }

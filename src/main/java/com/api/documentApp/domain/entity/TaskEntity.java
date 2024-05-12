@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,6 +30,8 @@ public class TaskEntity {
 
     private String description;
 
+    private String creator;
+
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
@@ -35,12 +39,23 @@ public class TaskEntity {
 
     private Instant deadline;
 
-    @ManyToMany(mappedBy = "tasks", fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "tasks")
     @JsonIgnore
-    private Set<UserEntity> users = new HashSet<>();
+    private List<UserEntity> users = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "document")
     private DocumentEntity document;
 
+    @PreRemove
+    private void removeTasksFromUsers() {
+        for (UserEntity u : users) {
+            u.getTasks().remove(this);
+        }
+    }
 }

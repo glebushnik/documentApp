@@ -54,6 +54,14 @@ public class DocumentServiceImpl implements DocumentService {
                         .data(file.getBytes())
                         .build()
         );
+        doc.setUrl(
+                ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .path("/api/docs/")
+                        .path(doc.getId())
+                        .toUriString()
+        );
+        documentRepo.save(doc);
         var userDocs = user.getDocs();
         userDocs.add(doc);
         user.setDocs(userDocs);
@@ -74,17 +82,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<DocumentResponseDTO> getAllDocs() {
-       return documentRepo.findAll().stream()
-                .map(documentResponseMapper::toDto)
-                .peek(documentResponseDTO -> {
-                    String fileDownloadUrl = ServletUriComponentsBuilder
-                            .fromCurrentContextPath()
-                            .path("/api/docs/")
-                            .path(documentResponseDTO.getId())
-                            .toUriString();
-                    documentResponseDTO.setUrl(fileDownloadUrl);
-                })
-                .collect(Collectors.toList());
+       return documentResponseMapper.toDto(documentRepo.findAll());
     }
 
     @Override
@@ -123,14 +121,7 @@ public class DocumentServiceImpl implements DocumentService {
                 throw new UserGroupNotFoundByIdException("Групп с такими id не найдено.");
             }
             documentRepo.save(updateDocMapper.updateDocument(requestDTO, doc));
-            DocumentResponseDTO documentResponseDTO = documentResponseMapper.toDto(doc);
-            String fileDownloadUrl = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/api/docs/")
-                    .path(documentResponseDTO.getId())
-                    .toUriString();
-            documentResponseDTO.setUrl(fileDownloadUrl);
-            return documentResponseDTO;
+            return documentResponseMapper.toDto(doc);
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");
         }

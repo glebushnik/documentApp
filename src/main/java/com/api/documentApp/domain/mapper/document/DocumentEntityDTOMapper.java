@@ -20,7 +20,7 @@ public class DocumentEntityDTOMapper {
                             .toUriString();
                     return DocumentResponseDTO.builder()
                             .id(doc.getId())
-                            .name(doc.getFileName())
+                            .fileName(doc.getFileName())
                             .type(doc.getType())
                             .owner(doc.getUser().getEmail())
                             .size(doc.getData().length)

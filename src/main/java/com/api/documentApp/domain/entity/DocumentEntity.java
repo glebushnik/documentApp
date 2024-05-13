@@ -42,6 +42,8 @@ public class DocumentEntity {
 
     private String parentDocId;
 
+    private String url;
+
     @Convert(converter = DocumentIdsToStringConverter.class)
     private List<String> relatedDocs;
 

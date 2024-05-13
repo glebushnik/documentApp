@@ -56,7 +56,7 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/{docId}")
+    @GetMapping("/doc/{docId}")
     public ResponseEntity<?> getTasksByDoc(
             @PathVariable String docId,
             HttpServletRequest request

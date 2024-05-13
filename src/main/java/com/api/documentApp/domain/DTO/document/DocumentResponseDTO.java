@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DocumentResponseDTO {
     private String id;
-    private String name;
+    private String fileName;
     private String url;
     private String type;
     private String owner;

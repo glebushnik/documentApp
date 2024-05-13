@@ -139,12 +139,12 @@ public class DocumentController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = { @Content() }),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = { @Content() })
     })
-    public ResponseEntity<?> getDocsByGroup(HttpServletRequest request, DocumentGroupRequestDTO requestDTO) {
+    public ResponseEntity<?> getDocsByGroup(HttpServletRequest request) {
         try {
             String authorizationHeader = request.getHeader("Authorization");
             String token = authorizationHeader.substring(7);
             String usernameFromAccess = jwtService.extractUserName(token);
-            return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess, requestDTO.getGroupId()));
+            return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

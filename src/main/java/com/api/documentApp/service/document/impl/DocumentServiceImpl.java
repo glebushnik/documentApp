@@ -4,6 +4,7 @@ import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
+import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.document.UpdateDocMapper;
@@ -52,6 +53,7 @@ public class DocumentServiceImpl implements DocumentService {
                         .createdDate(Instant.now())
                         .user(user)
                         .data(file.getBytes())
+                        .groupIds(user.getUserGroups().stream().map(UserGroupEntity::getId).map(String::valueOf).collect(Collectors.toList()))
                         .build()
         );
         doc.setUrl(
@@ -128,24 +130,19 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess, Long groupId)
-            throws UserGroupNotFoundByIdException,
-            NotEnoughRightsException
+    public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess)
     {
         var reqUser = userRepo.findByEmail(userNameFromAccess).get();
-        var userGroup = userGroupRepo.findById(groupId).orElseThrow(
-                ()->new UserGroupNotFoundByIdException(String.format("Группа пользователей с id : %d не найдена", groupId))
-        );
-        if(reqUser.getUserGroups().contains(userGroup)){
-            List<DocumentEntity> groupDocs = userGroup.getUsers()
-                    .stream()
-                    .flatMap(user -> user.getDocs().stream())
-                    .collect(Collectors.toList());
-            return documentResponseMapper.toDto(groupDocs);
-        } else if(reqUser.getRole() == Role.ADMIN) {
+
+        if(reqUser.getRole() == Role.ADMIN) {
             return documentResponseMapper.toDto(documentRepo.findAll());
         } else {
-            throw new NotEnoughRightsException("Недостаточно прав.");
+            var groups = reqUser.getUserGroups();
+            List<DocumentEntity> groupDocs = groups.stream()
+                    .flatMap(group -> group.getUsers().stream())
+                    .flatMap(userEntity -> userEntity.getDocs().stream())
+                    .collect(Collectors.toSet()).stream().toList();
+            return documentResponseMapper.toDto(groupDocs);
         }
     }
 }

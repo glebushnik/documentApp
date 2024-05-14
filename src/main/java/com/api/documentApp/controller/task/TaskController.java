@@ -88,4 +88,16 @@ public class TaskController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/current-user-tasks")
+    public ResponseEntity<?> getCurrentUserTasks(HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok().body(taskService.getCurrentUserTasks(usernameFromAccess));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

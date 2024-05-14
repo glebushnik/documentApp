@@ -30,4 +30,6 @@ public interface TaskService {
     public TaskRequestDTO updateTaskById(TaskUpdateRequestDTO requestDTO)
             throws TaskNotFoundByIdException,
             NotEnoughRightsException;
+
+    public List<TaskResponseDTO> getCurrentUserTasks(String usernameFromAccess);
 }

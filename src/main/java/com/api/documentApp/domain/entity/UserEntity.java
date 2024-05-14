@@ -125,7 +125,7 @@ public class UserEntity implements UserDetails {
     public void removeTask(long taskId) {
         TaskEntity task = this.tasks.stream().filter(t -> t.getId() == taskId).findFirst().orElse(null);
         if (task != null) {
-            this.userGroups.remove(task);
+            this.tasks.remove(task);
             task.getUsers().remove(this);
         }
     }

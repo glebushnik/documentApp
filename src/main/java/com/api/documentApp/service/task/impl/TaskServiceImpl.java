@@ -22,12 +22,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepo taskRepo;
+
     private final TaskResponseMapper taskResponseMapper;
     private final UserRepo userRepo;
     private final DocumentRepo documentRepo;
@@ -55,11 +57,12 @@ public class TaskServiceImpl implements TaskService {
                 .status(requestDTO.getStatus())
                 .build();
 
+        taskRepo.save(task);
         users.forEach(user -> {
             user.getTasks().add(task);
         });
         userRepo.saveAll(users);
-        return taskResponseMapper.toDto(taskRepo.save(task));
+        return taskResponseMapper.toDto(task);
     }
 
     @Override
@@ -109,5 +112,15 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskRequestDTO updateTaskById(TaskUpdateRequestDTO requestDTO) throws TaskNotFoundByIdException, NotEnoughRightsException {
         return null;
+    }
+
+    @Override
+    public List<TaskResponseDTO> getCurrentUserTasks(String usernameFromAccess) {
+        var user = userRepo.findByEmail(usernameFromAccess).get();
+
+        Set<TaskEntity> userTasks = user.getTasks().stream()
+                .filter(taskEntity -> taskEntity.getUsers().contains(user))
+                .collect(Collectors.toSet());
+        return taskResponseMapper.toDto(userTasks.stream().toList());
     }
 }

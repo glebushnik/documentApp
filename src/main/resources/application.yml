@@ -1,13 +1,3 @@
-logging:
-  file:
-    path:
-      logs/
-    name:
-      logs/application.log
-debug:
-  true
-trace:
-  true
 spring:
   datasource:
     hikari:

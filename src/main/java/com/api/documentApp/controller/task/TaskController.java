@@ -3,8 +3,14 @@ package com.api.documentApp.controller.task;
 import com.api.documentApp.domain.DTO.document.DocumentRequestIdDTO;
 import com.api.documentApp.domain.DTO.task.TaskRequestDTO;
 import com.api.documentApp.domain.DTO.task.TaskRequestIdDTO;
+import com.api.documentApp.domain.DTO.task.TaskResponseDTO;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.task.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,14 @@ public class TaskController {
     private final JwtService jwtService;
 
     @PostMapping("/new")
+    @Operation(
+            summary = "Create New Task",
+            description = "Create a new task with the provided details.",
+            tags = { "tasks", "create", "auth" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> createNewTask(
             @RequestBody TaskRequestDTO requestDTO,
             HttpServletRequest request
@@ -36,7 +50,16 @@ public class TaskController {
         }
     }
 
+
     @GetMapping("/all")
+    @Operation(
+            summary = "Get All Tasks",
+            description = "Retrieve all tasks.",
+            tags = { "tasks", "get", "admin" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllTasks(){
         try {
@@ -46,7 +69,16 @@ public class TaskController {
         }
     }
 
+
     @GetMapping("/{taskId}")
+    @Operation(
+            summary = "Get Task by ID",
+            description = "Retrieve task details by its ID.",
+            tags = { "tasks", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> getTaskById(@PathVariable Long taskId) {
         try {
             var requestIdDTO = TaskRequestIdDTO.builder().taskId(taskId).build();
@@ -57,6 +89,14 @@ public class TaskController {
     }
 
     @GetMapping("/doc/{docId}")
+    @Operation(
+            summary = "Get Tasks by Document",
+            description = "Retrieve tasks associated with a specific document.",
+            tags = { "tasks", "get", "documents" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> getTasksByDoc(
             @PathVariable String docId,
             HttpServletRequest request
@@ -73,6 +113,14 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}")
+    @Operation(
+            summary = "Delete Task by ID",
+            description = "Delete a task by its ID.",
+            tags = { "tasks", "delete", "auth" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "text/plain") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> deleteTaskById(
             @PathVariable Long taskId,
             HttpServletRequest request
@@ -90,6 +138,14 @@ public class TaskController {
     }
 
     @GetMapping("/current-user-tasks")
+    @Operation(
+            summary = "Get Current User Tasks",
+            description = "Retrieve tasks associated with the currently logged-in user.",
+            tags = { "tasks", "get", "auth" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
+    })
     public ResponseEntity<?> getCurrentUserTasks(HttpServletRequest request) {
         try {
             String authorizationHeader = request.getHeader("Authorization");

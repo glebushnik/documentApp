@@ -93,4 +93,26 @@ public class UserController {
         }
     }
 
+    @GetMapping("/current-group-members")
+    @Operation(
+            summary = "Get Current User Group Members",
+            description = "Retrieve the list of group members associated with the currently logged-in user.",
+            tags = { "users", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = List.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) })
+    })
+    public ResponseEntity<?> getCurrentUserGroupMembers(HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok().body(userService.getCurrentUserGroupMembers(usernameFromAccess));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
 }

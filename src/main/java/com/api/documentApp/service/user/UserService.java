@@ -19,4 +19,5 @@ public interface UserService {
     public List<UserGroupResponseDTO> getUserGroups(Long userId) throws UserNotFoundByIdException;
     public List<DocumentResponseDTO> getUserDocuments(Long userId,String userNameFromAccess)
             throws UserNotFoundByIdException, NotEnoughRightsException;
+    public List<UserResponseDTO> getCurrentUserGroupMembers(String userNameFromAccess);
 }

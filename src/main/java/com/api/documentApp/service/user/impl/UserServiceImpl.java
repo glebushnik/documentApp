@@ -4,6 +4,8 @@ import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
+import com.api.documentApp.domain.entity.DocumentEntity;
+import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentEntityDTOMapper;
@@ -23,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,4 +105,18 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO getCurrentUser(String userNameFromAccess) {
         return userResponseMapper.toDto(userRepo.findByEmail(userNameFromAccess).get());
     }
+
+    @Override
+    public List<UserResponseDTO> getCurrentUserGroupMembers(String userNameFromAccess) {
+        var user = userRepo.findByEmail(userNameFromAccess).get();
+
+        var userGroups = user.getUserGroups();
+
+        List<UserEntity> users = userGroups.stream()
+                .flatMap(userGroup -> userGroup.getUsers().stream())
+                .collect(Collectors.toSet()).stream().toList();
+        return userResponseMapper.toDto(users);
+    }
 }
+
+

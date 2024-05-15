@@ -118,6 +118,9 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskResponseDTO> getCurrentUserTasks(String usernameFromAccess) {
         var user = userRepo.findByEmail(usernameFromAccess).get();
 
+        if(user.getRole() == Role.ADMIN) {
+            return taskResponseMapper.toDto(taskRepo.findAll());
+        }
         Set<TaskEntity> userTasks = user.getTasks().stream()
                 .filter(taskEntity -> taskEntity.getUsers().contains(user))
                 .collect(Collectors.toSet());

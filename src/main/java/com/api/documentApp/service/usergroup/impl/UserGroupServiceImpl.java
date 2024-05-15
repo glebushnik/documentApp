@@ -72,7 +72,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
                 -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
         var users = userGroup.getUsers();
-        users.forEach(user -> user.removeUserGroup(userGroup.getId()));
+        users.forEach(user -> user.removeUserGroup(userGroup));
         userGroupRepo.deleteById(userGroupId);
     }
 
@@ -119,7 +119,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         }
         members.remove(user);
         userGroup.setUsers(members);
-        user.removeUserGroup(userGroupId);
+        user.removeUserGroup(userGroup);
         userRepo.save(user);
         return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
     }

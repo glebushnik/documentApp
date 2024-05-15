@@ -1,10 +1,7 @@
 package com.api.documentApp.service.task;
 
 import com.api.documentApp.domain.DTO.document.DocumentRequestIdDTO;
-import com.api.documentApp.domain.DTO.task.TaskRequestDTO;
-import com.api.documentApp.domain.DTO.task.TaskRequestIdDTO;
-import com.api.documentApp.domain.DTO.task.TaskResponseDTO;
-import com.api.documentApp.domain.DTO.task.TaskUpdateRequestDTO;
+import com.api.documentApp.domain.DTO.task.*;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.task.TaskNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -27,8 +24,9 @@ public interface TaskService {
             throws TaskNotFoundByIdException,
             NotEnoughRightsException;
 
-    public TaskRequestDTO updateTaskById(TaskUpdateRequestDTO requestDTO)
+    public TaskResponseDTO updateTaskById(UpdateTaskRequestDTO requestDTO)
             throws TaskNotFoundByIdException,
+            DocumentNotFoundByIdException,
             NotEnoughRightsException;
 
     public List<TaskResponseDTO> getCurrentUserTasks(String usernameFromAccess);

@@ -1,14 +1,12 @@
 package com.api.documentApp.service.task.impl;
 
 import com.api.documentApp.domain.DTO.document.DocumentRequestIdDTO;
-import com.api.documentApp.domain.DTO.task.TaskRequestDTO;
-import com.api.documentApp.domain.DTO.task.TaskRequestIdDTO;
-import com.api.documentApp.domain.DTO.task.TaskResponseDTO;
-import com.api.documentApp.domain.DTO.task.TaskUpdateRequestDTO;
+import com.api.documentApp.domain.DTO.task.*;
 import com.api.documentApp.domain.entity.TaskEntity;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.task.TaskResponseMapper;
+import com.api.documentApp.domain.mapper.task.TaskUpdateMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.task.TaskNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepo taskRepo;
-
+    private final TaskUpdateMapper taskUpdateMapper;
     private final TaskResponseMapper taskResponseMapper;
     private final UserRepo userRepo;
     private final DocumentRepo documentRepo;
@@ -101,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
         var user = userRepo.findByEmail(userNameFromAccess).get();
 
         if(Objects.equals(userNameFromAccess, task.getCreator())){
-            user.removeTask(task.getId());
+            user.removeTask(task);
             userRepo.save(user);
             taskRepo.delete(task);
         } else {
@@ -110,8 +108,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskRequestDTO updateTaskById(TaskUpdateRequestDTO requestDTO) throws TaskNotFoundByIdException, NotEnoughRightsException {
-        return null;
+    public TaskResponseDTO updateTaskById(UpdateTaskRequestDTO requestDTO) throws TaskNotFoundByIdException, DocumentNotFoundByIdException,NotEnoughRightsException {
+        var task = taskRepo.findById(requestDTO.getId()).orElseThrow(
+                ()->new TaskNotFoundByIdException(String.format("Задание с id : %d не найдено.", requestDTO.getId()))
+        );
+        var document = documentRepo.findById(requestDTO.getDocId()).orElseThrow(
+                ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", requestDTO.getDocId()))
+        );
+        return taskResponseMapper.toDto(
+                taskUpdateMapper.mapTaskEntityWithDTO(task, requestDTO)
+        );
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.api.documentApp.domain.DTO.document.DocumentRequestIdDTO;
 import com.api.documentApp.domain.DTO.task.TaskRequestDTO;
 import com.api.documentApp.domain.DTO.task.TaskRequestIdDTO;
 import com.api.documentApp.domain.DTO.task.TaskResponseDTO;
+import com.api.documentApp.domain.DTO.task.UpdateTaskRequestDTO;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.task.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +32,7 @@ public class TaskController {
     @Operation(
             summary = "Create New Task",
             description = "Create a new task with the provided details.",
-            tags = { "tasks", "create", "auth" })
+            tags = { "tasks", "create"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
@@ -116,7 +117,7 @@ public class TaskController {
     @Operation(
             summary = "Delete Task by ID",
             description = "Delete a task by its ID.",
-            tags = { "tasks", "delete", "auth" })
+            tags = { "tasks", "delete"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "text/plain") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
@@ -141,7 +142,7 @@ public class TaskController {
     @Operation(
             summary = "Get Current User Tasks",
             description = "Retrieve tasks associated with the currently logged-in user.",
-            tags = { "tasks", "get", "auth" })
+            tags = { "tasks", "get"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = TaskResponseDTO.class), mediaType = "application/json") }),
             @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) })
@@ -156,4 +157,22 @@ public class TaskController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/update-task")
+    @Operation(
+            summary = "Update Task",
+            description = "Update a task with the provided information.",
+            tags = { "tasks", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Task updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> updateTask(@RequestBody UpdateTaskRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok().body(taskService.updateTaskById(requestDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

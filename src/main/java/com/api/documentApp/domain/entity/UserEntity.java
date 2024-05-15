@@ -109,12 +109,10 @@ public class UserEntity implements UserDetails {
         group.getUsers().add(this);
     }
 
-    public void removeUserGroup(long userGroupId) {
-        UserGroupEntity userGroup = this.userGroups.stream().filter(group -> group.getId() == userGroupId).findFirst().orElse(null);
-        if (userGroup != null) {
-            this.userGroups.remove(userGroup);
-            userGroup.getUsers().remove(this);
-        }
+    public void removeUserGroup(UserGroupEntity userGroup) {
+        var userGroups = this.getUserGroups();
+        userGroups.remove(userGroup);
+        this.setUserGroups(userGroups);
     }
 
     public void addTask(TaskEntity task) {
@@ -122,11 +120,9 @@ public class UserEntity implements UserDetails {
         task.getUsers().add(this);
     }
 
-    public void removeTask(long taskId) {
-        TaskEntity task = this.tasks.stream().filter(t -> t.getId() == taskId).findFirst().orElse(null);
-        if (task != null) {
-            this.tasks.remove(task);
-            task.getUsers().remove(this);
-        }
+    public void removeTask(TaskEntity task) {
+        var userTasks = this.getTasks();
+        userTasks.remove(task);
+        this.setTasks(userTasks);
     }
 }

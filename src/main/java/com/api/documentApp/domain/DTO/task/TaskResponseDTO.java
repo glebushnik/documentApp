@@ -1,6 +1,7 @@
 package com.api.documentApp.domain.DTO.task;
 
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.enums.TaskStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
 @Builder
 @Data
@@ -25,4 +27,5 @@ public class TaskResponseDTO {
     private Instant creationDate;
     private Instant deadline;
     private DocumentResponseDTO doc;
+    private List<UserResponseDTO> users;
 }

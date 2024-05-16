@@ -16,6 +16,7 @@ public interface TaskResponseMapper extends EntityResponseMapper<TaskResponseDTO
     @Override
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "doc", source = "entity.document")
+    @Mapping(target = "users", source = "entity.users")
     TaskResponseDTO toDto(TaskEntity entity);
 
     @Override

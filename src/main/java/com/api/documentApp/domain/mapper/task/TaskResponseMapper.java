@@ -17,11 +17,16 @@ public interface TaskResponseMapper extends EntityResponseMapper<TaskResponseDTO
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "doc", source = "entity.document")
     @Mapping(target = "users", source = "entity.users")
+    @Mapping(target = "creationDate", source = "entity.createdDate")
     TaskResponseDTO toDto(TaskEntity entity);
 
     @Override
     List<TaskEntity> toEntity(List<TaskResponseDTO> dtoList);
 
     @Override
+    @Mapping(target = "id", source = "entity.id")
+    @Mapping(target = "doc", source = "entity.document")
+    @Mapping(target = "users", source = "entity.users")
+    @Mapping(target = "creationDate", source = "entity.createdDate")
     List<TaskResponseDTO> toDto(List<TaskEntity> entityList);
 }

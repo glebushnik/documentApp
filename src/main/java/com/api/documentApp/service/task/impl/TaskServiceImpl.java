@@ -98,7 +98,7 @@ public class TaskServiceImpl implements TaskService {
         );
         var user = userRepo.findByEmail(userNameFromAccess).get();
 
-        if(Objects.equals(userNameFromAccess, task.getCreator())){
+        if(Objects.equals(userNameFromAccess, task.getCreator()) || user.getRole() == Role.ADMIN){
             user.removeTask(task);
             userRepo.save(user);
             taskRepo.delete(task);

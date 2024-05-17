@@ -42,7 +42,6 @@ public class TaskUpdateMapper {
             users.forEach(user -> {
                 user.getTasks().add(task);
             });
-            userRepo.saveAll(users);
             taskRepo.save(task);
         }
 

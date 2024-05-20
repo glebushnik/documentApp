@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailRequestDTO {
     private String email;
-    private String docId;
+    private List<String> docIds;
     private String header;
     private String body;
 }

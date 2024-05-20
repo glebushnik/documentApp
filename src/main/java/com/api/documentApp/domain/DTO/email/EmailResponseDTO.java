@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -13,6 +14,6 @@ import java.time.Instant;
 @AllArgsConstructor
 public class EmailResponseDTO {
     private String emailReceiver;
-    private String docId;
+    private List<String> docIds;
     private Instant sentTime;
 }

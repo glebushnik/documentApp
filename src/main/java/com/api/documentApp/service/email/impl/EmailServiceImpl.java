@@ -35,23 +35,34 @@ public class EmailServiceImpl implements EmailService {
     private final DocumentService documentService;
     private final DocumentResponseMapper documentResponseMapper;
     @Override
-    public EmailResponseDTO sendEmailWithAttachment(EmailRequestDTO emailRequestDTO, String userNameFromAccess) throws UserNotFoundByIdException, DocumentNotFoundByIdException, NotEnoughRightsException, MessagingException {
+    public EmailResponseDTO sendEmailWithAttachment(EmailRequestDTO emailRequestDTO, String userNameFromAccess)
+            throws UserNotFoundByIdException, DocumentNotFoundByIdException, NotEnoughRightsException, MessagingException {
 
-        var doc = documentRepo.findById(emailRequestDTO.getDocId()).orElseThrow(
-                ()-> new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", emailRequestDTO.getDocId()))
-        );
+        List<String> docIds = emailRequestDTO.getDocIds();
 
-        var currentUser = userRepo.findByEmail(userNameFromAccess).get();
+        List<DocumentEntity> docs = docIds.stream()
+                .map(docId -> {
+                    try {
+                        return documentRepo.findById(docId)
+                                .orElseThrow(() -> new DocumentNotFoundByIdException(
+                                        String.format("Документ с id : %s не найден.", docId)));
+                    } catch (DocumentNotFoundByIdException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+
+        var currentUser = userRepo.findByEmail(userNameFromAccess)
+                .orElseThrow(() -> new UserNotFoundByIdException("Пользователь не найден."));
+
         Set<DocumentEntity> groupDocs = currentUser.getUserGroups().stream()
                 .flatMap(group -> group.getUsers().stream())
-                .map(UserEntity::getDocs)
-                .flatMap(docs -> docs.stream())
+                .flatMap(user -> user.getDocs().stream())
                 .collect(Collectors.toSet());
 
-        if(
-                currentUser.getRole()== Role.ADMIN
-                || groupDocs.contains(doc)
-        ) {
+        boolean hasAccessToAllDocs = currentUser.getRole() == Role.ADMIN || docs.stream().allMatch(groupDocs::contains);
+
+        if (hasAccessToAllDocs) {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message, true);
             mimeMessageHelper.setFrom("document.app.help@gmail.com");
@@ -64,16 +75,23 @@ public class EmailServiceImpl implements EmailService {
                     currentUser.getEmail()
             ));
             mimeMessageHelper.setText(emailRequestDTO.getBody());
-            ByteArrayResource resource = new ByteArrayResource(doc.getData());
-            mimeMessageHelper.addAttachment(doc.getFileName(), resource);
+
+            for (DocumentEntity doc : docs) {
+                ByteArrayResource resource = new ByteArrayResource(doc.getData());
+                mimeMessageHelper.addAttachment(doc.getFileName(), resource);
+            }
+
             javaMailSender.send(message);
+
             return EmailResponseDTO.builder()
                     .emailReceiver(emailRequestDTO.getEmail())
-                    .docId(doc.getId())
+                    .docIds(docIds)
                     .sentTime(Instant.now())
                     .build();
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");
         }
     }
+
+
 }

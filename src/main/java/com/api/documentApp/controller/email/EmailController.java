@@ -29,7 +29,7 @@ public class EmailController {
     @PostMapping("/send-message")
     @Operation(
             summary = "Send Email",
-            description = "Send an email with attachment. The request body should be an EmailRequestDTO object with receiverId, documentId and body of message. The email is sent on behalf of the authenticated user.",
+            description = "Send an email with several attachments. The request body should be an EmailRequestDTO object with receiverId, documentIds and body of message. The email is sent on behalf of the authenticated user.",
             tags = { "documents", "email", "post"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Email sent successfully", content = { @Content(schema = @Schema(implementation = EmailResponseDTO.class), mediaType = "application/json") }),

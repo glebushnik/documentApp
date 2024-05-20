@@ -117,6 +117,28 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet()).stream().toList();
         return userResponseMapper.toDto(users);
     }
+
+    @Override
+    public UserResponseDTO disableUser(Long userId) throws UserNotFoundByIdException {
+        var user = userRepo.findById(userId).orElseThrow(
+                () -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
+        );
+
+
+        user.setActive(false);
+        return userResponseMapper.toDto(userRepo.save(user));
+    }
+
+    @Override
+    public UserResponseDTO activateUser(Long userId) throws UserNotFoundByIdException {
+        var user = userRepo.findById(userId).orElseThrow(
+                () -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
+        );
+
+
+        user.setActive(true);
+        return userResponseMapper.toDto(userRepo.save(user));
+    }
 }
 
 

@@ -267,5 +267,42 @@ public class AdminController {
     }
 
 
+    @PutMapping("/disable/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Disable User",
+            description = "Disable a user by their ID.",
+            tags = { "admin", "users", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User successfully disabled", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> disableUserById(@PathVariable Long userId) {
+        try {
+            return ResponseEntity.ok().body(userService.disableUser(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/activate/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Activate User",
+            description = "Activate a user by their ID.",
+            tags = { "admin", "users", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User successfully activated", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> activateUserById(@PathVariable Long userId) {
+        try {
+            return ResponseEntity.ok().body(userService.activateUser(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }

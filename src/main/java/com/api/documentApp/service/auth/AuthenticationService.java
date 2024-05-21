@@ -2,6 +2,7 @@ package com.api.documentApp.service.auth;
 
 import com.api.documentApp.domain.DTO.auth.*;
 import com.api.documentApp.domain.enums.Role;
+import com.api.documentApp.exception.user.UserNotActiveException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.security.JwtService;
@@ -39,15 +40,18 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws UserNotActiveException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-
         var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
+
+        if(user.isActive() == false) {
+            throw new UserNotActiveException(String.format("Пользователь с username : %s не активен.", user.getUsername()));
+        }
 
         var jwtToken = jwtService.generateToken(user.getEmail());
         return  AuthenticationResponse.builder().token(jwtToken).build();

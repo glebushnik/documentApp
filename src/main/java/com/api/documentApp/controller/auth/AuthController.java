@@ -68,14 +68,18 @@ public class AuthController {
     public ResponseEntity<?> authenticate(
             @Valid @RequestBody AuthenticationRequest request
     ) {
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
-        return ResponseEntity.ok().body(
-                JWTResponse.builder()
-                        .accessToken(authenticationService.authenticate(request).getToken())
-                        .refreshToken(refreshToken.getToken())
-                        .role(refreshToken.getUser().getRole())
-                        .build()
-        );
+        try {
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
+            return ResponseEntity.ok().body(
+                    JWTResponse.builder()
+                            .accessToken(authenticationService.authenticate(request).getToken())
+                            .refreshToken(refreshToken.getToken())
+                            .role(refreshToken.getUser().getRole())
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/refreshtoken")

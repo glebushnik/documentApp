@@ -1,7 +1,8 @@
 package com.api.documentApp.controller.admin;
 
-import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
+import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupRequestDTO;
+import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserRequestDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
@@ -9,9 +10,9 @@ import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.exception.user.UserNotFoundByEmailException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
-import com.api.documentApp.exception.usergroup.UserGroupContainsNoSuchUsersException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.service.document.DocumentService;
+import com.api.documentApp.service.documentgroup.DocumentGroupService;
 import com.api.documentApp.service.user.UserService;
 import com.api.documentApp.service.usergroup.UserGroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +39,7 @@ public class AdminController {
     private final UserService userService;
     private final UserGroupService userGroupService;
     private final DocumentService documentService;
+    private final DocumentGroupService documentGroupService;
 
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -300,6 +303,102 @@ public class AdminController {
     public ResponseEntity<?> activateUserById(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok().body(userService.activateUser(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/document-groups/new")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Create Document Group",
+            description = "Create a new document group with the provided details.",
+            tags = { "admin","document-groups", "post" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group successfully created", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> createDocumentGroup(@RequestBody DocumentGroupRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok().body(documentGroupService.createDocumentGroup(requestDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/document-groups/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Get All Document Groups",
+            description = "Retrieve a list of all document groups.",
+            tags = { "document-groups", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document groups retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> getAllDocumentGroups(){
+        try {
+            return ResponseEntity.ok().body(documentGroupService.getAllDocumentGroups());
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/document-groups/{documentGroupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Get Document Group by ID",
+            description = "Retrieve a document group by its ID.",
+            tags = { "admin","document-groups", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> getDocumentGroupById(@PathVariable Long documentGroupId) {
+        try {
+            return ResponseEntity.ok().body(documentGroupService.getDocumentGroupById(documentGroupId));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/document-groups/{documentGroupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Delete Document Group by ID",
+            description = "Delete a document group by its ID.",
+            tags = {"admin", "document-groups", "delete" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group deleted successfully", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> deleteDocumentGroupById(@PathVariable Long documentGroupId) {
+        try {
+            documentGroupService.deleteDocumentGroupById(documentGroupId);
+            return ResponseEntity.ok().body(String.format("Группа документов с id : %d удалена", documentGroupId));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/document-groups/{documentGroupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Update Document Group by ID",
+            description = "Update a document group by its ID with the provided details.",
+            tags = {"admin", "document-groups", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group updated successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> updateDocumentGroupById(@PathVariable Long documentGroupId, @RequestBody DocumentGroupRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok().body(documentGroupService.updateDocumentGroupById(documentGroupId, requestDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

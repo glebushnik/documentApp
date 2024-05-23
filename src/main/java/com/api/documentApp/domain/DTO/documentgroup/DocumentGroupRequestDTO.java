@@ -1,14 +1,18 @@
-package com.api.documentApp.domain.DTO.document;
+package com.api.documentApp.domain.DTO.documentgroup;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class DocumentGroupRequestDTO {
-    private Long groupId;
+    private String name;
+    private List<String> docIds;
+    private List<Long> userGroupIds;
 }

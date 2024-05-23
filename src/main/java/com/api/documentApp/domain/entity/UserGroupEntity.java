@@ -36,10 +36,32 @@ public class UserGroupEntity {
     @JsonIgnore
     private List<UserEntity> users = new ArrayList<>();
 
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "user_doc_groups",
+            joinColumns = { @JoinColumn(name = "group_id") },
+            inverseJoinColumns = { @JoinColumn(name = "docgroup_id") })
+    private List<DocumentGroupEntity> documentGroups = new ArrayList<>();
+
     @PreRemove
     private void removeGroupsFromUsers() {
         for (UserEntity u : users) {
             u.getUserGroups().remove(this);
         }
+    }
+
+    public void addDocumentGroup(DocumentGroupEntity docGroup) {
+        this.documentGroups.add(docGroup);
+        docGroup.getUserGroups().add(this);
+    }
+
+    public void removeDocumentGroup(DocumentGroupEntity docGroup) {
+        var docGroups = this.getDocumentGroups();
+        docGroups.remove(docGroup);
+        this.setDocumentGroups(docGroups);
     }
 }

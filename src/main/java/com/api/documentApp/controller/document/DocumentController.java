@@ -1,12 +1,12 @@
 package com.api.documentApp.controller.document;
 
-import com.api.documentApp.domain.DTO.document.DocumentGroupRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.security.JwtService;
 import com.api.documentApp.service.document.DocumentService;
+import com.api.documentApp.service.documentgroup.DocumentGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentController {
     private final DocumentService documentService;
     private final JwtService jwtService;
+    private final DocumentGroupService documentGroupService;
 
     @PostMapping("/upload")
     @Operation(
@@ -145,6 +146,29 @@ public class DocumentController {
             String token = authorizationHeader.substring(7);
             String usernameFromAccess = jwtService.extractUserName(token);
             return ResponseEntity.ok().body(documentService.getGroupDocs(usernameFromAccess));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/by-document-group/{documentGroupId}")
+    @Operation(
+            summary = "Get Documents by Document Group ID",
+            description = "Retrieve documents belonging to the specified document group of the authenticated user.",
+            tags = { "documents", "get" }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of documents", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = { @Content() }),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = { @Content() }),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = { @Content() })
+    })
+    public ResponseEntity<?> getDocumentsByDocGroupId(@PathVariable Long documentGroupId, HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok(documentGroupService.getDocumentsByDocumentGroupId(documentGroupId, usernameFromAccess));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

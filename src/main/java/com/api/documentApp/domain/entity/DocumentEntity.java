@@ -74,4 +74,8 @@ public class DocumentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @ManyToOne
+    @JoinColumn(name = "documentgroup_id")
+    private DocumentGroupEntity documentGroup;
+
 }

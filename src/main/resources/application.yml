@@ -3,8 +3,8 @@ spring:
     hikari:
       auto-commit: false
     url: jdbc:postgresql://localhost:5432/document_app_db
-    username: postgres
-    password: postgres
+    username: db_admin
+    password: wHO0mmBM
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:

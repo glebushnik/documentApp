@@ -3,6 +3,7 @@ package com.api.documentApp.service.documentgroup;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupRequestDTO;
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.documentgroup.DocumentGroupNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -32,4 +33,8 @@ public interface DocumentGroupService {
     public List<DocumentResponseDTO> getDocumentsByDocumentGroupId(Long documentGroupId, String userNameFromAccess)
         throws DocumentGroupNotFoundByIdException,
             NotEnoughRightsException;
+
+    public List<UserGroupResponseDTO> getUserGroupsByDocumentGroup(Long documentGroupid)
+        throws DocumentGroupNotFoundByIdException;
+
 }

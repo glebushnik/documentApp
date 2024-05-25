@@ -1,5 +1,6 @@
 package com.api.documentApp.service.usergroup;
 
+import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
@@ -23,4 +24,7 @@ public interface UserGroupService {
             throws UserNotFoundByEmailException,
             UserGroupNotFoundByIdException,
             UserGroupContainsNoSuchUsersException;
+
+    public List<DocumentGroupResponseDTO> getDocumentGroupsByUserGroup(Long userGroupId)
+        throws UserGroupNotFoundByIdException;
 }

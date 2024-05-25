@@ -327,44 +327,6 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/document-groups/all")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(
-            summary = "Get All Document Groups",
-            description = "Retrieve a list of all document groups.",
-            tags = { "document-groups", "get" })
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Document groups retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
-    })
-    public ResponseEntity<?> getAllDocumentGroups(){
-        try {
-            return ResponseEntity.ok().body(documentGroupService.getAllDocumentGroups());
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/document-groups/{documentGroupId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(
-            summary = "Get Document Group by ID",
-            description = "Retrieve a document group by its ID.",
-            tags = { "admin","document-groups", "get" })
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Document group retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
-    })
-    public ResponseEntity<?> getDocumentGroupById(@PathVariable Long documentGroupId) {
-        try {
-            return ResponseEntity.ok().body(documentGroupService.getDocumentGroupById(documentGroupId));
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @DeleteMapping("/document-groups/{documentGroupId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(
@@ -403,5 +365,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
 }

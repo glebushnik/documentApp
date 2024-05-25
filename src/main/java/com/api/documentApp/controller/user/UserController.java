@@ -1,10 +1,12 @@
 package com.api.documentApp.controller.user;
 
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
+import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.security.JwtService;
+import com.api.documentApp.service.documentgroup.DocumentGroupService;
 import com.api.documentApp.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
+    private final DocumentGroupService documentGroupService;
     @GetMapping("/{userId}")
     @Operation(
             summary = "Retrieve User by Id",
@@ -114,5 +118,39 @@ public class UserController {
         }
     }
 
+    @GetMapping("/document-groups/all")
+    @Operation(
+            summary = "Get All Document Groups",
+            description = "Retrieve a list of all document groups.",
+            tags = { "users","document-groups", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document groups retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> getAllDocumentGroups(){
+        try {
+            return ResponseEntity.ok().body(documentGroupService.getAllDocumentGroups());
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
+    @GetMapping("/document-groups/{documentGroupId}")
+    @Operation(
+            summary = "Get Document Group by ID",
+            description = "Retrieve a document group by its ID.",
+            tags = { "users","document-groups", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> getDocumentGroupById(@PathVariable Long documentGroupId) {
+        try {
+            return ResponseEntity.ok().body(documentGroupService.getDocumentGroupById(documentGroupId));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

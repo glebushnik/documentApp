@@ -1,10 +1,12 @@
 package com.api.documentApp.service.usergroup.impl;
 
+import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
 import com.api.documentApp.domain.DTO.user.UserEmailRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupRequestDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
+import com.api.documentApp.domain.mapper.documentgroup.DocumentGroupResponseMapper;
 import com.api.documentApp.domain.mapper.user.UserResponseMapper;
 import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.user.UserNotFoundByEmailException;
@@ -27,6 +29,7 @@ public class UserGroupServiceImpl implements UserGroupService {
     private final UserRepo userRepo;
     private final UserGroupResponseMapper userGroupResponseMapper;
     private final UserResponseMapper userResponseMapper;
+    private final DocumentGroupResponseMapper documentGroupResponseMapper;
     @Override
     public UserGroupResponseDTO createUserGroup(UserGroupRequestDTO userGroupRequestDTO) throws UsernameNotFoundException {
         List<String>emails = userGroupRequestDTO.getEmails();
@@ -122,5 +125,13 @@ public class UserGroupServiceImpl implements UserGroupService {
         user.removeUserGroup(userGroup);
         userRepo.save(user);
         return userGroupResponseMapper.toDto(userGroupRepo.save(userGroup));
+    }
+
+    @Override
+    public List<DocumentGroupResponseDTO> getDocumentGroupsByUserGroup(Long userGroupId) throws UserGroupNotFoundByIdException {
+        var userGroup = userGroupRepo.findById(userGroupId).orElseThrow(()
+                -> new UserGroupNotFoundByIdException(String.format("Группы пользователей с id : %d не найдено.", userGroupId)));
+
+        return documentGroupResponseMapper.toDto(userGroup.getDocumentGroups());
     }
 }

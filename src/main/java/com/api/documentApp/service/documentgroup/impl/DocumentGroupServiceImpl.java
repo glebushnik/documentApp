@@ -3,10 +3,12 @@ package com.api.documentApp.service.documentgroup.impl;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupRequestDTO;
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
+import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.documentgroup.DocumentGroupResponseMapper;
+import com.api.documentApp.domain.mapper.usergroup.UserGroupResponseMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.documentgroup.DocumentGroupNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
@@ -31,6 +33,7 @@ public class DocumentGroupServiceImpl implements DocumentGroupService {
     private final UserRepo userRepo;
     private final DocumentGroupResponseMapper documentGroupResponseMapper;
     private final DocumentResponseMapper documentResponseMapper;
+    private final UserGroupResponseMapper userGroupResponseMapper;
     @Override
     public DocumentGroupResponseDTO createDocumentGroup(DocumentGroupRequestDTO requestDTO) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException {
         var userGroups = requestDTO.getUserGroupIds().stream()
@@ -188,5 +191,14 @@ public class DocumentGroupServiceImpl implements DocumentGroupService {
 
         if(isDocumentGroupPresent) return documentResponseMapper.toDto(documentGroup.getDocs());
         else throw new NotEnoughRightsException("Недостаточно прав.");
+    }
+
+    @Override
+    public List<UserGroupResponseDTO> getUserGroupsByDocumentGroup(Long documentGroupId) throws DocumentGroupNotFoundByIdException {
+        var documentGroup = documentGroupRepo.findById(documentGroupId).orElseThrow(
+                ()-> new DocumentGroupNotFoundByIdException(String.format("Группа документов с id : %d не найдена.", documentGroupId))
+        );
+
+        return userGroupResponseMapper.toDto(documentGroup.getUserGroups());
     }
 }

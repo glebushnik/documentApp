@@ -4,14 +4,17 @@ import com.api.documentApp.domain.DTO.document.DocumentRequestDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
+import com.api.documentApp.domain.entity.DocumentGroupEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.document.UpdateDocMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
+import com.api.documentApp.exception.documentgroup.DocumentGroupNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.document.DocumentRepo;
+import com.api.documentApp.repo.documentgroup.DocumentGroupRepo;
 import com.api.documentApp.repo.user.UserRepo;
 import com.api.documentApp.repo.usergroup.UserGroupRepo;
 import com.api.documentApp.service.document.DocumentService;
@@ -34,6 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final UpdateDocMapper updateDocMapper;
     private final DocumentResponseMapper documentResponseMapper;
     private final UserGroupRepo userGroupRepo;
+    private final DocumentGroupRepo documentGroupRepo;
 
     @Override
     public DocumentResponseMessage storeDoc(
@@ -94,6 +98,8 @@ public class DocumentServiceImpl implements DocumentService {
         var doc = documentRepo.findById(docId).orElseThrow(
                 () -> new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
         );
+        var documentGroup = doc.getDocumentGroup();
+        documentGroup.getDocs().remove(doc);
         var reqUser = userRepo.findByEmail(userName).get();
         var docUser = doc.getUser();
         var userDocs = docUser.getDocs();
@@ -110,11 +116,15 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO, String userNameFromAccess) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException, NotEnoughRightsException {
+    public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO, String userNameFromAccess) throws DocumentNotFoundByIdException, UserGroupNotFoundByIdException, DocumentGroupNotFoundByIdException,NotEnoughRightsException {
         var user = userRepo.findByEmail(userNameFromAccess).get();
         var doc = documentRepo.findById(requestDTO.getId()).orElseThrow(
                 ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден", requestDTO.getId()))
         );
+        var docGroup = documentGroupRepo.findById(requestDTO.getDocGroupId()).orElseThrow(
+                ()->new DocumentGroupNotFoundByIdException(String.format("Группа документов с id : %d не найдена.", requestDTO.getDocGroupId()))
+        );
+        docGroup.getDocs().remove(doc);
         if(user.getRole() == Role.ADMIN || doc.getUser() == user) {
             if (documentRepo.findAllById(requestDTO.getRelatedDocIds()).contains(null)) {
                 throw new DocumentNotFoundByIdException("Документов с такими id не найдено.");
@@ -139,9 +149,10 @@ public class DocumentServiceImpl implements DocumentService {
         } else {
             var groups = reqUser.getUserGroups();
             List<DocumentEntity> groupDocs = groups.stream()
-                    .flatMap(group -> group.getUsers().stream())
-                    .flatMap(userEntity -> userEntity.getDocs().stream())
-                    .collect(Collectors.toSet()).stream().toList();
+                    .flatMap(userGroup -> userGroup.getDocumentGroups().stream())
+                    .flatMap(documentGroup -> documentGroup.getDocs().stream())
+                    .collect(Collectors.toList());
+
             return documentResponseMapper.toDto(groupDocs);
         }
     }

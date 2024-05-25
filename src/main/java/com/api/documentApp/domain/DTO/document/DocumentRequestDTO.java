@@ -27,6 +27,8 @@ public class DocumentRequestDTO {
 
     private List<String> relatedUserGroupIds;
 
+    private Long docGroupId;
+
     private Instant expirationDate;
 
     private String comment;

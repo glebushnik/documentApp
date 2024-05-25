@@ -8,6 +8,7 @@ import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
+import com.api.documentApp.exception.documentgroup.DocumentGroupNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
@@ -21,6 +22,7 @@ public interface DocumentService {
     public DocumentResponseDTO setProperties(DocumentRequestDTO requestDTO, String userNameFromAccess)
             throws DocumentNotFoundByIdException,
             UserGroupNotFoundByIdException,
+            DocumentGroupNotFoundByIdException,
             NotEnoughRightsException;
     public DocumentEntity getDocById(String fileName) throws DocumentNotFoundByIdException;
 

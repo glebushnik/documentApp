@@ -16,6 +16,6 @@ import java.util.List;
 public class DocumentGroupResponseDTO {
     private Long id;
     private String name;
-    private List<DocumentResponseDTO> documents;
-    private List<UserGroupResponseDTO> userGroups;
+    private List<String> documentIds;
+    private List<Long> userGroupIds;
 }

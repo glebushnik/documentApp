@@ -81,8 +81,8 @@ public class DocumentGroupServiceImpl implements DocumentGroupService {
     }
 
     @Override
-    public List<DocumentGroupEntity> getAllDocumentGroups() {
-        return documentGroupRepo.findAll();
+    public List<DocumentGroupResponseDTO> getAllDocumentGroups() {
+        return documentGroupResponseMapper.toDto(documentGroupRepo.findAll());
     }
 
     @Override

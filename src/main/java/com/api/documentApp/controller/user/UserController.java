@@ -122,7 +122,7 @@ public class UserController {
     @Operation(
             summary = "Get All Document Groups",
             description = "Retrieve a list of all document groups.",
-            tags = { "users","document-groups", "get" })
+            tags = { "users", "document-groups", "get" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Document groups retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),

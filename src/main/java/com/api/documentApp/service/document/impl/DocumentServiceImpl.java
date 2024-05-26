@@ -5,6 +5,7 @@ import com.api.documentApp.domain.DTO.document.DocumentResponseDTO;
 import com.api.documentApp.domain.DTO.document.DocumentResponseMessage;
 import com.api.documentApp.domain.entity.DocumentEntity;
 import com.api.documentApp.domain.entity.DocumentGroupEntity;
+import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
@@ -12,6 +13,7 @@ import com.api.documentApp.domain.mapper.document.UpdateDocMapper;
 import com.api.documentApp.exception.document.DocumentNotFoundByIdException;
 import com.api.documentApp.exception.documentgroup.DocumentGroupNotFoundByIdException;
 import com.api.documentApp.exception.user.NotEnoughRightsException;
+import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.exception.usergroup.UserGroupNotFoundByIdException;
 import com.api.documentApp.repo.document.DocumentRepo;
 import com.api.documentApp.repo.documentgroup.DocumentGroupRepo;
@@ -26,6 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,12 +53,15 @@ public class DocumentServiceImpl implements DocumentService {
                 .anyMatch(Character.UnicodeScript.CYRILLIC::equals);
         Transliterator toLatin = Transliterator.getInstance("Cyrillic-Latin");
         var fileName = toLatin.transliterate(file.getOriginalFilename());
+        List<UserEntity> users = new ArrayList<>();
+        users.add(user);
         var doc = documentRepo.save(
                 DocumentEntity.builder()
                         .fileName(containsCyrillic ? fileName : file.getOriginalFilename())
                         .type(file.getContentType())
                         .createdDate(Instant.now())
-                        .user(user)
+                        .owner(user.getEmail())
+                        .users(users)
                         .data(file.getBytes())
                         .groupIds(user.getUserGroups().stream().map(UserGroupEntity::getId).map(String::valueOf).collect(Collectors.toList()))
                         .build()
@@ -98,20 +104,24 @@ public class DocumentServiceImpl implements DocumentService {
         var doc = documentRepo.findById(docId).orElseThrow(
                 () -> new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
         );
-        var documentGroup = doc.getDocumentGroup();
-        documentGroup.getDocs().remove(doc);
+        if(doc.getDocumentGroup()!=null) {
+            var documentGroup = doc.getDocumentGroup();
+            documentGroup.getDocs().remove(doc);
+        }
         var reqUser = userRepo.findByEmail(userName).get();
-        var docUser = doc.getUser();
-        var userDocs = docUser.getDocs();
-        if(!userDocs.isEmpty()) {
-            if (reqUser.getRole() == Role.ADMIN || reqUser == docUser) {
-                userDocs.remove(doc);
-                docUser.setDocs(userDocs);
-                userRepo.save(docUser);
-                documentRepo.delete(doc);
-            } else {
-                throw new NotEnoughRightsException("Вы не являетесь владельцем этого файла.");
-            }
+        var docUser = userRepo.findByEmail(doc.getOwner()).get();
+
+        var users = doc.getUsers();
+        if (reqUser.getRole() == Role.ADMIN || reqUser == docUser) {
+            users.forEach(
+                    user -> {
+                        user.removeDoc(doc);
+                    }
+            );
+            userRepo.saveAll(users);
+            documentRepo.delete(doc);
+        } else {
+            throw new NotEnoughRightsException("Вы не являетесь владельцем этого файла.");
         }
     }
 
@@ -121,11 +131,14 @@ public class DocumentServiceImpl implements DocumentService {
         var doc = documentRepo.findById(requestDTO.getId()).orElseThrow(
                 ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден", requestDTO.getId()))
         );
-        var docGroup = documentGroupRepo.findById(requestDTO.getDocGroupId()).orElseThrow(
-                ()->new DocumentGroupNotFoundByIdException(String.format("Группа документов с id : %d не найдена.", requestDTO.getDocGroupId()))
-        );
-        docGroup.getDocs().remove(doc);
-        if(user.getRole() == Role.ADMIN || doc.getUser() == user) {
+        if(doc.getDocumentGroup() != null) {
+            var docGroup = documentGroupRepo.findById(requestDTO.getDocGroupId()).orElseThrow(
+                    () -> new DocumentGroupNotFoundByIdException(String.format("Группа документов с id : %d не найдена.", requestDTO.getDocGroupId()))
+            );
+            docGroup.getDocs().remove(doc);
+        }
+        var docUser = userRepo.findByEmail(doc.getOwner()).get();
+        if(user.getRole() == Role.ADMIN || docUser == user) {
             if (documentRepo.findAllById(requestDTO.getRelatedDocIds()).contains(null)) {
                 throw new DocumentNotFoundByIdException("Документов с такими id не найдено.");
             }
@@ -155,5 +168,35 @@ public class DocumentServiceImpl implements DocumentService {
 
             return documentResponseMapper.toDto(groupDocs);
         }
+    }
+
+    @Override
+    public void addPrivatedUser(String docId, Long userId) throws DocumentNotFoundByIdException, UserNotFoundByIdException {
+        var doc = documentRepo.findById(docId).orElseThrow(
+                ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
+        );
+
+        var user = userRepo.findById(userId).orElseThrow(
+                ()->new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
+        );
+
+        doc.getUsers().add(user);
+        documentRepo.save(doc);
+        user.getDocs().add(doc);
+        userRepo.save(user);
+    }
+
+    @Override
+    public void removePrivatedUser(String docId, Long userId) throws DocumentNotFoundByIdException, UserNotFoundByIdException {
+        var doc = documentRepo.findById(docId).orElseThrow(
+                ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
+        );
+
+        var user = userRepo.findById(userId).orElseThrow(
+                ()->new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
+        );
+
+        user.removeDoc(doc);
+        userRepo.save(user);
     }
 }

@@ -71,7 +71,16 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private List<TaskEntity> tasks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    }, fetch = FetchType.LAZY)
+    @JoinTable(name = "user_docs",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "doc_id")
+    )
+    @JsonIgnore
     private List<DocumentEntity> docs;
 
     @Override
@@ -124,5 +133,15 @@ public class UserEntity implements UserDetails {
         var userTasks = this.getTasks();
         userTasks.remove(task);
         this.setTasks(userTasks);
+    }
+
+    public void addDoc(DocumentEntity doc) {
+        this.docs.add(doc);
+        doc.getUsers().add(this);
+    }
+
+    public void removeDoc(DocumentEntity document) {
+        docs.remove(document);
+        document.getUsers().remove(this);
     }
 }

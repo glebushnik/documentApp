@@ -84,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
         );
         var user = userRepo.findByEmail(userNameFromAccess).get();
 
-        if(doc.getUser() == user || user.getRole() == Role.ADMIN) {
+        if(Objects.equals(doc.getOwner(), user.getEmail()) || user.getRole() == Role.ADMIN) {
             return taskResponseMapper.toDto(taskRepo.findAllByDocument(doc));
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");

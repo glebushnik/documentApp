@@ -34,4 +34,11 @@ public interface DocumentService {
 
     public List<DocumentResponseDTO> getGroupDocs(String userNameFromAccess);
 
+    public void addPrivatedUser(String docId, Long userId)
+        throws DocumentNotFoundByIdException,
+            UserNotFoundByIdException;
+
+    public void removePrivatedUser(String docId, Long userId)
+            throws DocumentNotFoundByIdException,
+            UserNotFoundByIdException;
 }

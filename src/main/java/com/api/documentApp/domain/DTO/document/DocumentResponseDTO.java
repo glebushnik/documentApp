@@ -1,6 +1,7 @@
 package com.api.documentApp.domain.DTO.document;
 
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
+import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.enums.DocStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,6 +30,7 @@ public class DocumentResponseDTO {
     private DocStatus status;
     private List<String> relatedDocs;
     private List<String> userGroups;
+    private List<UserResponseDTO> users;
     private DocumentGroupResponseDTO documentGroup;
     private String comment;
     private long size;

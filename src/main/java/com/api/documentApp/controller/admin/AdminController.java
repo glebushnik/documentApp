@@ -366,5 +366,43 @@ public class AdminController {
         }
     }
 
+    @PutMapping("/docs/add-user/{userId}/{docId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Add privated user to document users",
+            description = "Add privated user to document user list providing its Id and docId.",
+            tags = {"admin", "documents", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group updated successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> addPrivatedUser(@PathVariable Long userId, @PathVariable String docId) {
+        try {
+            documentService.addPrivatedUser(docId, userId);
+            return ResponseEntity.ok().body(String.format("Пользователь с id : %d добавлен в список пользователей документа : %s.", userId, docId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
+    @PutMapping("/docs/remove-user/{userId}/{docId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(
+            summary = "Remove privated user to document users",
+            description = "Remove privated user to document user list providing its Id and docId.",
+            tags = {"admin", "documents", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group updated successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> removePrivatedUser(@PathVariable Long userId, @PathVariable String docId) {
+        try {
+            documentService.removePrivatedUser(docId, userId);
+            return ResponseEntity.ok().body(String.format("Пользователь с id : %d удален из списка пользователей документа : %s.", userId, docId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

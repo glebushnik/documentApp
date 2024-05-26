@@ -11,5 +11,4 @@ import java.util.Optional;
 
 @Transactional
 public interface DocumentRepo extends JpaRepository<DocumentEntity, String> {
-    public List<DocumentEntity> findAllByUser(UserEntity user);
 }

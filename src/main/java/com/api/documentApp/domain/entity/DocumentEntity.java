@@ -8,12 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,12 +72,25 @@ public class DocumentEntity {
     @JsonIgnore
     private List<TaskEntity> tasks;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "docs")
+    @JsonIgnore
+    private List<UserEntity> users = new ArrayList<>();
+
+    private String owner;
 
     @ManyToOne
     @JoinColumn(name = "documentgroup_id")
     private DocumentGroupEntity documentGroup;
 
+    @PreRemove
+    private void removeDocsFromUsers() {
+        for (UserEntity u : users) {
+            u.getDocs().remove(this);
+        }
+    }
 }

@@ -15,7 +15,7 @@ public interface DocumentResponseMapper extends EntityResponseMapper<DocumentRes
     DocumentEntity toEntity(DocumentResponseDTO dto);
 
     @Override
-    @Mapping(target = "owner", source = "entity.user.username")
+    @Mapping(target = "owner", source = "entity.owner")
     @Mapping(target = "userGroups", source = "entity.groupIds")
     @Mapping(target = "url", source = "entity.url")
     @Mapping(target = "expirationDate", source= "entity.expirationDate")

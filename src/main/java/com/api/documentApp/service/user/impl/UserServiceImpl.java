@@ -92,10 +92,9 @@ public class UserServiceImpl implements UserService {
                 () -> new UserNotFoundByIdException(String.format("Пользователь с id : %d не найден.", userId))
         );
         var user = userRepo.findByEmail(userNameFromAccess).get();
-        var userGroups = user.getUserGroups();
-        userGroups.retainAll(reqUser.getUserGroups());
-        if(!userGroups.isEmpty()){
-            return documentResponseMapper.toDto(documentRepo.findAllByUser(reqUser));
+
+        if(user == reqUser || user.getRole() == Role.ADMIN){
+            return documentResponseMapper.toDto(reqUser.getDocs());
         } else {
             throw new NotEnoughRightsException("Недостаточно прав.");
         }

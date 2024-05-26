@@ -22,7 +22,7 @@ public class DocumentEntityDTOMapper {
                             .id(doc.getId())
                             .fileName(doc.getFileName())
                             .type(doc.getType())
-                            .owner(doc.getUser().getEmail())
+                            .owner(doc.getOwner())
                             .size(doc.getData().length)
                             .url(fileDownloadUrl)
                             .build();

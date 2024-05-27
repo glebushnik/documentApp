@@ -41,4 +41,8 @@ public interface DocumentService {
     public void removePrivatedUser(String docId, Long userId)
             throws DocumentNotFoundByIdException,
             UserNotFoundByIdException;
+
+    public DocumentResponseDTO getDocInfoById(String docId, String userNameFromAccess)
+            throws DocumentNotFoundByIdException,
+            NotEnoughRightsException;
 }

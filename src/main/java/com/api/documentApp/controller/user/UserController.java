@@ -6,6 +6,7 @@ import com.api.documentApp.domain.DTO.user.UserResponseDTO;
 import com.api.documentApp.domain.entity.UserEntity;
 import com.api.documentApp.exception.user.UserNotFoundByIdException;
 import com.api.documentApp.security.JwtService;
+import com.api.documentApp.service.document.DocumentService;
 import com.api.documentApp.service.documentgroup.DocumentGroupService;
 import com.api.documentApp.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +35,7 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final DocumentGroupService documentGroupService;
+    private final DocumentService documentService;
     @GetMapping("/{userId}")
     @Operation(
             summary = "Retrieve User by Id",
@@ -149,6 +151,27 @@ public class UserController {
     public ResponseEntity<?> getDocumentGroupById(@PathVariable Long documentGroupId) {
         try {
             return ResponseEntity.ok().body(documentGroupService.getDocumentGroupById(documentGroupId));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/document/get-info/{docId}")
+    @Operation(
+            summary = "Get Document Info by ID",
+            description = "Retrieve a document Info by its ID.",
+            tags = { "users","documents", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document info retrieved successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> getDocumentInfoById(@PathVariable String docId, HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String token = authorizationHeader.substring(7);
+            String usernameFromAccess = jwtService.extractUserName(token);
+            return ResponseEntity.ok().body(documentService.getDocInfoById(docId, usernameFromAccess));
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

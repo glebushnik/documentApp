@@ -5,6 +5,8 @@ import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupRequestDTO;
 import com.api.documentApp.domain.DTO.documentgroup.DocumentGroupResponseDTO;
 import com.api.documentApp.domain.DTO.usergroup.UserGroupResponseDTO;
 import com.api.documentApp.domain.entity.DocumentGroupEntity;
+import com.api.documentApp.domain.entity.UserEntity;
+import com.api.documentApp.domain.entity.UserGroupEntity;
 import com.api.documentApp.domain.enums.Role;
 import com.api.documentApp.domain.mapper.document.DocumentResponseMapper;
 import com.api.documentApp.domain.mapper.documentgroup.DocumentGroupResponseMapper;
@@ -70,6 +72,16 @@ public class DocumentGroupServiceImpl implements DocumentGroupService {
                 document -> {
                     document.setDocumentGroup(documentGroup);
                 }
+        );
+        docs.forEach(
+                document -> {
+                    document.getUsers().addAll(
+                            userGroups.stream()
+                                    .flatMap(userGroup -> userGroup.getUsers().stream())
+                                    .collect(Collectors.toList())
+                    );
+                }
+
         );
         userGroups.forEach(
                 group -> {

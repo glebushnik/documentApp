@@ -140,8 +140,9 @@ public class UserEntity implements UserDetails {
         doc.getUsers().add(this);
     }
 
-    public void removeDoc(DocumentEntity document) {
-        docs.remove(document);
-        document.getUsers().remove(this);
+    public void removeDoc(DocumentEntity doc) {
+        var userDocs = this.getDocs();
+        userDocs.remove(doc);
+        this.setDocs(userDocs);
     }
 }

@@ -104,20 +104,20 @@ public class DocumentServiceImpl implements DocumentService {
         var doc = documentRepo.findById(docId).orElseThrow(
                 () -> new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
         );
-        if(doc.getDocumentGroup()!=null) {
+
+        if(doc.getDocumentGroup() !=null) {
             var documentGroup = doc.getDocumentGroup();
             documentGroup.getDocs().remove(doc);
         }
+
         var reqUser = userRepo.findByEmail(userName).get();
         var docUser = userRepo.findByEmail(doc.getOwner()).get();
 
-        var users = doc.getUsers();
         if (reqUser.getRole() == Role.ADMIN || reqUser == docUser) {
-            users.forEach(
-                    user -> {
-                        user.removeDoc(doc);
-                    }
-            );
+            var users = doc.getUsers();
+            var tasks = doc.getTasks();
+            tasks.forEach(task -> task.setDocument(null));
+            users.forEach(user -> user.removeDoc(doc));
             userRepo.saveAll(users);
             documentRepo.delete(doc);
         } else {
@@ -198,5 +198,20 @@ public class DocumentServiceImpl implements DocumentService {
 
         user.removeDoc(doc);
         userRepo.save(user);
+    }
+
+    @Override
+    public DocumentResponseDTO getDocInfoById(String docId, String userNameFromAccess) throws DocumentNotFoundByIdException, NotEnoughRightsException {
+        var doc = documentRepo.findById(docId).orElseThrow(
+                ()->new DocumentNotFoundByIdException(String.format("Документ с id : %s не найден.", docId))
+        );
+
+        var reqUser = userRepo.findByEmail(userNameFromAccess).get();
+
+        if(doc.getUsers().contains(reqUser) || reqUser.getRole()==Role.ADMIN) {
+            return documentResponseMapper.toDto(doc);
+        } else {
+            throw new NotEnoughRightsException("Недостаточно прав.");
+        }
     }
 }

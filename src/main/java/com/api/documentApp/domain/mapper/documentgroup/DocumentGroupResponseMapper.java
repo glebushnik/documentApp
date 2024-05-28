@@ -18,21 +18,8 @@ public interface DocumentGroupResponseMapper extends EntityResponseMapper<Docume
     @Override
     DocumentGroupEntity toEntity(DocumentGroupResponseDTO dto);
 
-    @Mappings({
-            @Mapping(target = "documentIds", source = "docs", qualifiedByName = "mapDocumentIds"),
-            @Mapping(target = "userGroupIds", source = "userGroups", qualifiedByName = "mapUserGroupIds")
-    })
+    @Mapping(target = "docs", source = "entity.docs")
     DocumentGroupResponseDTO toDto(DocumentGroupEntity entity);
-
-    @Named("mapDocumentIds")
-    default List<String> mapDocumentIds(List<DocumentEntity> docs) {
-        return docs.stream().map(DocumentEntity::getId).collect(Collectors.toList());
-    }
-
-    @Named("mapUserGroupIds")
-    default List<Long> mapUserGroupIds(List<UserGroupEntity> userGroups) {
-        return userGroups.stream().map(UserGroupEntity::getId).collect(Collectors.toList());
-    }
 
     @Override
     List<DocumentGroupEntity> toEntity(List<DocumentGroupResponseDTO> dtoList);

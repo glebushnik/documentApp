@@ -53,6 +53,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .anyMatch(Character.UnicodeScript.CYRILLIC::equals);
         Transliterator toLatin = Transliterator.getInstance("Cyrillic-Latin");
         var fileName = toLatin.transliterate(file.getOriginalFilename());
+        if(fileName.contains("č")) fileName = fileName.replace("č", "ch");
         List<UserEntity> users = new ArrayList<>();
         users.add(user);
         var doc = documentRepo.save(

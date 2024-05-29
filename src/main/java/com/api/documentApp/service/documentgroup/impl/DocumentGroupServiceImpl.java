@@ -23,6 +23,7 @@ import com.api.documentApp.service.documentgroup.DocumentGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,8 @@ public class DocumentGroupServiceImpl implements DocumentGroupService {
                     group.getDocumentGroups().add(documentGroup);
                 }
         );
-        userGroupRepo.saveAll(userGroups);
+        List<UserGroupEntity> userGroupsCopy = new ArrayList<>(userGroups);
+        userGroupRepo.saveAll(userGroupsCopy);
         return documentGroupResponseMapper.toDto(documentGroup);
     }
 

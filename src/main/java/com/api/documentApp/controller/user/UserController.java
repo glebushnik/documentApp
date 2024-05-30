@@ -176,4 +176,21 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/all")
+    @Operation(
+            summary = "Retrieve All Users",
+            description = "Get a list of all users. The response is a list of UserResponseDTO objects with id, name, email, password, createdAt, updatedAt and role.",
+            tags = {"users", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = UserResponseDTO.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<UserResponseDTO> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,7 +60,8 @@ public class TaskServiceImpl implements TaskService {
         users.forEach(user -> {
             user.getTasks().add(task);
         });
-        userRepo.saveAll(users);
+        var savedUsers = new ArrayList<>(users);
+        userRepo.saveAll(savedUsers);
         return taskResponseMapper.toDto(task);
     }
 

@@ -20,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -189,6 +186,44 @@ public class UserController {
         try {
             List<UserResponseDTO> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/docs/add-user/{userId}/{docId}")
+    @Operation(
+            summary = "Add privated user to document users",
+            description = "Add privated user to document user list providing its Id and docId.",
+            tags = {"users", "documents", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group updated successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> addPrivatedUser(@PathVariable Long userId, @PathVariable String docId) {
+        try {
+            documentService.addPrivatedUser(docId, userId);
+            return ResponseEntity.ok().body(String.format("Пользователь с id : %d добавлен в список пользователей документа : %s.", userId, docId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/docs/remove-user/{userId}/{docId}")
+    @Operation(
+            summary = "Remove privated user to document users",
+            description = "Remove privated user to document user list providing its Id and docId.",
+            tags = {"users", "documents", "put" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document group updated successfully", content = @Content(schema = @Schema(implementation = DocumentGroupResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema()))
+    })
+    public ResponseEntity<?> removePrivatedUser(@PathVariable Long userId, @PathVariable String docId) {
+        try {
+            documentService.removePrivatedUser(docId, userId);
+            return ResponseEntity.ok().body(String.format("Пользователь с id : %d удален из списка пользователей документа : %s.", userId, docId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
